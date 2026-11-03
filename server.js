@@ -178,15 +178,21 @@ app.delete('/api/admin/inactive', async (req, res) => {
   }
 });
 
-// Admin get visitors
+// Admin get visitors (active in the last 15 seconds)
 app.get('/api/admin/visitors', async (req, res) => {
   try {
     if (!isAdmin(req)) return res.status(401).json({ ok: false });
     const cutoffIso = new Date(Date.now() - 15000).toISOString();
-    const { data } = await supabase.from('visitors').select('*').gte('last_seen', cutoffIso);
-    res.json({ ok: true, count: (data || []).length, visitors: data || [] });
+    const { data } = await supabase.from('visitors').select('*').gte('last_seen', cutoffIso).order('last_seen', { ascending: false });
+    const visitors = (data || []).map(v => ({
+      sid: v.session_id,
+      page: v.current_page || 'home',
+      first: v.first_seen ? new Date(v.first_seen).getTime() : null,
+      last: v.last_seen ? new Date(v.last_seen).getTime() : null
+    }));
+    res.json({ ok: true, count: visitors.length, visitors });
   } catch (err) {
-    res.json({ ok: false, count: 0 });
+    res.json({ ok: false, count: 0, visitors: [] });
   }
 });
 
