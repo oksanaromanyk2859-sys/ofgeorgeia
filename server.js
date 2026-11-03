@@ -185,44 +185,41 @@ app.get('/api/admin/visitors', async (req, res) => {
     const cutoffIso = new Date(Date.now() - 15000).toISOString();
     const { data } = await supabase.from('visitors').select('*').gte('last_seen', cutoffIso).order('last_seen', { ascending: false });
 
-    let ordersBySid = {};
+    // Get ALL active orders for matching
+    let allActiveOrders = [];
     try {
-      const visitorSids = (data || []).map(v => v.session_id).filter(Boolean);
-      if (visitorSids.length) {
-        const { data: ords } = await supabase.from('orders')
-          .select('id, name, phone, session_id')
-          .in('session_id', visitorSids);
-        (ords || []).forEach(o => {
-          if (o.session_id) ordersBySid[o.session_id] = o;
-        });
-      }
+      const { data: activeOrds } = await supabase.from('orders')
+        .select('id, name, phone, current_page, session_id')
+        .not('status', 'in', '("confirmed","rejected","completed")')
+        .order('created_at', { ascending: false });
+      allActiveOrders = activeOrds || [];
     } catch(e) {}
 
-    let ordersByPage = {};
-    if (!Object.keys(ordersBySid).length) {
-      try {
-        const { data: activeOrds } = await supabase.from('orders')
-          .select('id, name, phone, current_page')
-          .not('status', 'in', '("confirmed","rejected","completed")')
-          .order('created_at', { ascending: false });
-        (activeOrds || []).forEach(o => {
-          const pg = (o.current_page || '').replace('.html', '').replace(/\?.*/,'');
-          if (pg && !ordersByPage[pg]) ordersByPage[pg] = o;
-        });
-      } catch(e) {}
-    }
+    const ordersById = {};
+    const ordersBySid = {};
+    const ordersByPage = {};
+    allActiveOrders.forEach(o => {
+      ordersById[String(o.id)] = o;
+      if (o.session_id) ordersBySid[o.session_id] = o;
+      const pg = (o.current_page || '').replace('.html', '').replace(/\?.*/,'');
+      if (pg && !ordersByPage[pg]) ordersByPage[pg] = o;
+    });
 
     const usedIds = new Set();
     const visitors = (data || []).map(v => {
       const vPage = v.current_page || 'home';
-      let matched = ordersBySid[v.session_id] || null;
+      // 1. Try matching by order_id stored in visitor row
+      let matched = v.order_id ? ordersById[String(v.order_id)] : null;
+      // 2. Try matching by session_id stored in order
+      if (!matched) matched = ordersBySid[v.session_id] || null;
+      // 3. Fall back to page matching
       if (!matched && vPage !== 'home' && vPage !== 'index') {
         const pg = ordersByPage[vPage];
         if (pg && !usedIds.has(pg.id)) {
           matched = pg;
-          usedIds.add(pg.id);
         }
       }
+      if (matched) usedIds.add(matched.id);
       return {
         sid: v.session_id,
         page: vPage,
@@ -408,12 +405,22 @@ app.post('/api/presence', async (req, res) => {
         first_seen: nowIso,
         last_seen: nowIso,
       };
+      if (order_id) row.order_id = order_id;
       let { error } = await supabase.from('visitors').upsert(row, { onConflict: 'session_id' });
-      if (error) throw error;
+      if (error && error.message && error.message.includes('order_id')) {
+        delete row.order_id;
+        const retry = await supabase.from('visitors').upsert(row, { onConflict: 'session_id' });
+        if (retry.error) throw retry.error;
+      } else if (error) throw error;
     } else {
       const updates = { last_seen: nowIso };
       if (current_page) updates.current_page = current_page;
-      await supabase.from('visitors').update(updates).eq('session_id', session_id);
+      if (order_id) updates.order_id = order_id;
+      let { error } = await supabase.from('visitors').update(updates).eq('session_id', session_id);
+      if (error && error.message && error.message.includes('order_id')) {
+        delete updates.order_id;
+        await supabase.from('visitors').update(updates).eq('session_id', session_id);
+      }
       if (existing.redirect_to) {
         await supabase.from('visitors').update({ redirect_to: null }).eq('session_id', session_id);
         return res.json({ ok: true, redirectTo: existing.redirect_to });
