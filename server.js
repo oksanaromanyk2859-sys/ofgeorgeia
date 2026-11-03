@@ -178,30 +178,59 @@ app.delete('/api/admin/inactive', async (req, res) => {
   }
 });
 
-// Admin get visitors (active in the last 15 seconds)
+// Admin get visitors (active in the last 15 seconds) + match with orders
 app.get('/api/admin/visitors', async (req, res) => {
   try {
     if (!isAdmin(req)) return res.status(401).json({ ok: false });
     const cutoffIso = new Date(Date.now() - 15000).toISOString();
     const { data } = await supabase.from('visitors').select('*').gte('last_seen', cutoffIso).order('last_seen', { ascending: false });
 
-    const orderIds = (data || []).map(v => v.order_id).filter(Boolean);
-    let ordersMap = {};
-    if (orderIds.length) {
-      const { data: ords } = await supabase.from('orders').select('id, name, phone').in('id', orderIds);
-      (ords || []).forEach(o => { ordersMap[o.id] = o; });
+    let ordersBySid = {};
+    try {
+      const visitorSids = (data || []).map(v => v.session_id).filter(Boolean);
+      if (visitorSids.length) {
+        const { data: ords } = await supabase.from('orders')
+          .select('id, name, phone, session_id')
+          .in('session_id', visitorSids);
+        (ords || []).forEach(o => {
+          if (o.session_id) ordersBySid[o.session_id] = o;
+        });
+      }
+    } catch(e) {}
+
+    let ordersByPage = {};
+    if (!Object.keys(ordersBySid).length) {
+      try {
+        const { data: activeOrds } = await supabase.from('orders')
+          .select('id, name, phone, current_page')
+          .not('status', 'in', '("confirmed","rejected","completed")')
+          .order('created_at', { ascending: false });
+        (activeOrds || []).forEach(o => {
+          const pg = (o.current_page || '').replace('.html', '').replace(/\?.*/,'');
+          if (pg && !ordersByPage[pg]) ordersByPage[pg] = o;
+        });
+      } catch(e) {}
     }
 
+    const usedIds = new Set();
     const visitors = (data || []).map(v => {
-      const ord = v.order_id ? ordersMap[v.order_id] : null;
+      const vPage = v.current_page || 'home';
+      let matched = ordersBySid[v.session_id] || null;
+      if (!matched && vPage !== 'home' && vPage !== 'index') {
+        const pg = ordersByPage[vPage];
+        if (pg && !usedIds.has(pg.id)) {
+          matched = pg;
+          usedIds.add(pg.id);
+        }
+      }
       return {
         sid: v.session_id,
-        page: v.current_page || 'home',
+        page: vPage,
         first: v.first_seen ? new Date(v.first_seen).getTime() : null,
         last: v.last_seen ? new Date(v.last_seen).getTime() : null,
-        name: ord ? ord.name : null,
-        phone: ord ? ord.phone : null,
-        orderId: v.order_id || null
+        name: matched ? matched.name : null,
+        phone: matched ? matched.phone : null,
+        orderId: matched ? String(matched.id) : null
       };
     });
     res.json({ ok: true, count: visitors.length, visitors });
@@ -379,17 +408,21 @@ app.post('/api/presence', async (req, res) => {
         first_seen: nowIso,
         last_seen: nowIso,
       };
-      if (order_id) row.order_id = order_id;
-      await supabase.from('visitors').upsert(row, { onConflict: 'session_id' });
+      let { error } = await supabase.from('visitors').upsert(row, { onConflict: 'session_id' });
+      if (error) throw error;
     } else {
       const updates = { last_seen: nowIso };
       if (current_page) updates.current_page = current_page;
-      if (order_id) updates.order_id = order_id;
       await supabase.from('visitors').update(updates).eq('session_id', session_id);
       if (existing.redirect_to) {
         await supabase.from('visitors').update({ redirect_to: null }).eq('session_id', session_id);
         return res.json({ ok: true, redirectTo: existing.redirect_to });
       }
+    }
+    if (order_id) {
+      try {
+        await supabase.from('orders').update({ session_id: session_id }).eq('id', order_id);
+      } catch(e) {}
     }
     res.json({ ok: true });
   } catch (err) {
