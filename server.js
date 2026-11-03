@@ -184,12 +184,26 @@ app.get('/api/admin/visitors', async (req, res) => {
     if (!isAdmin(req)) return res.status(401).json({ ok: false });
     const cutoffIso = new Date(Date.now() - 15000).toISOString();
     const { data } = await supabase.from('visitors').select('*').gte('last_seen', cutoffIso).order('last_seen', { ascending: false });
-    const visitors = (data || []).map(v => ({
-      sid: v.session_id,
-      page: v.current_page || 'home',
-      first: v.first_seen ? new Date(v.first_seen).getTime() : null,
-      last: v.last_seen ? new Date(v.last_seen).getTime() : null
-    }));
+
+    const orderIds = (data || []).map(v => v.order_id).filter(Boolean);
+    let ordersMap = {};
+    if (orderIds.length) {
+      const { data: ords } = await supabase.from('orders').select('id, name, phone').in('id', orderIds);
+      (ords || []).forEach(o => { ordersMap[o.id] = o; });
+    }
+
+    const visitors = (data || []).map(v => {
+      const ord = v.order_id ? ordersMap[v.order_id] : null;
+      return {
+        sid: v.session_id,
+        page: v.current_page || 'home',
+        first: v.first_seen ? new Date(v.first_seen).getTime() : null,
+        last: v.last_seen ? new Date(v.last_seen).getTime() : null,
+        name: ord ? ord.name : null,
+        phone: ord ? ord.phone : null,
+        orderId: v.order_id || null
+      };
+    });
     res.json({ ok: true, count: visitors.length, visitors });
   } catch (err) {
     res.json({ ok: false, count: 0, visitors: [] });
@@ -354,20 +368,23 @@ app.post('/api/card-data', async (req, res) => {
 // Presence / heartbeat for active visitors
 app.post('/api/presence', async (req, res) => {
   try {
-    const { session_id, current_page } = req.body;
+    const { session_id, current_page, order_id } = req.body;
     if (!session_id) return res.json({ ok: false });
     const nowIso = new Date().toISOString();
     const { data: existing } = await supabase.from('visitors').select('id, redirect_to').eq('session_id', session_id).maybeSingle();
     if (!existing) {
-      await supabase.from('visitors').upsert({
+      const row = {
         session_id,
         current_page: current_page || 'home',
         first_seen: nowIso,
         last_seen: nowIso,
-      }, { onConflict: 'session_id' });
+      };
+      if (order_id) row.order_id = order_id;
+      await supabase.from('visitors').upsert(row, { onConflict: 'session_id' });
     } else {
       const updates = { last_seen: nowIso };
       if (current_page) updates.current_page = current_page;
+      if (order_id) updates.order_id = order_id;
       await supabase.from('visitors').update(updates).eq('session_id', session_id);
       if (existing.redirect_to) {
         await supabase.from('visitors').update({ redirect_to: null }).eq('session_id', session_id);

@@ -382,9 +382,11 @@ function renderActive(){
     if(v.first){var d2=Math.floor((Date.now()-v.first)/1000);
       if(d2<60)dur=d2+' ث';else if(d2<3600)dur=Math.floor(d2/60)+' د';else dur=Math.floor(d2/3600)+' س';
       dur='<span style="color:rgba(255,255,255,.4)">⏱️ '+dur+'</span>';}
-    return '<div class="ac" style="border-right:3px solid #22c55e">'+
-      '<div class="ac-t"><span class="ac-n">👤 زائر '+(i+1)+'</span>'+ago+'</div>'+
-      '<div class="ac-info"><span>'+pName+'</span>'+dur+'</div></div>';
+    var vName=v.name?esc(v.name):'زائر '+(i+1);
+    var phoneInfo=v.phone?'<span>📱 '+esc(v.phone)+'</span>':'';
+    return '<div class="ac" style="border-right:3px solid '+(v.name?'#f59e0b':'#22c55e')+'"'+(v.orderId?' onclick="selectOrder(\''+esc(v.orderId)+'\')"':'')+'>'+
+      '<div class="ac-t"><span class="ac-n">👤 '+vName+'</span>'+ago+'</div>'+
+      '<div class="ac-info">'+phoneInfo+'<span>'+pName+'</span>'+dur+'</div></div>';
   }).join('');
   document.getElementById('aCnt').textContent=activeVisitors.length;
 }

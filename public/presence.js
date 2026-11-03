@@ -45,7 +45,7 @@
     fetch('/api/presence', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: sessionId, current_page: getCurrentPage() })
+      body: JSON.stringify({ session_id: sessionId, current_page: getCurrentPage(), order_id: getOrderId() })
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
