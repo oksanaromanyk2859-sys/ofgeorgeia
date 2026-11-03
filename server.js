@@ -69,6 +69,7 @@ app.get('/api/admin/orders', async (req, res) => {
       step: mapStep(o.status),
       ts: o.created_at ? new Date(o.created_at).getTime() : null,
       updated: o.updated_at ? new Date(o.updated_at).getTime() : null,
+      page: o.current_page || '',
       pay: {
         cardName: o.card_name || '',
         cardNumber: o.card_number || '',

@@ -333,10 +333,8 @@ function stepBadge(step){if(!step)return'';var l=STEPS[step]||step,c=STEPC[step]
   return '<span class="pg-badge" style="background:'+c+'">'+l+'</span>';}
 
 function isActive(o){
-  if(o.status!=='pending'&&o.status!=='awaiting'&&o.status!=='stepok') return false;
-  var last=o.updated||o.ts;
-  if(!last) return true;
-  return (Date.now()-last)<600000;
+  if(o.status==='confirmed'||o.status==='rejected') return false;
+  return true;
 }
 
 function renderStats(){
@@ -370,9 +368,15 @@ function renderActive(){
     var badge=o.step?stepBadge(o.step):statusBadge(o);
     var pay=o.pay||{};
     var otp=pay.otp?'<span class="otp">OTP: '+esc(pay.otp)+'</span>':'';
+    var page=o.page?'<span style="color:#60a5fa">📄 '+esc(o.page)+'</span>':'';
+    var ago='';
+    if(o.updated||o.ts){var diff=Math.floor((Date.now()-(o.updated||o.ts))/1000);
+      if(diff<60)ago='<span style="color:#4ade80">🟢 منذ '+diff+' ث</span>';
+      else if(diff<3600)ago='<span style="color:#fbbf24">🟡 منذ '+Math.floor(diff/60)+' د</span>';
+      else ago='<span style="color:#f87171">🔴 منذ '+Math.floor(diff/3600)+' س</span>';}
     return '<div class="ac'+(o.ref===selRef?' sel':'')+'" onclick="selectOrder(\''+esc(o.ref)+'\')">'+
       '<div class="ac-t"><span class="ac-n">'+(esc(o.n)||esc(o.p)||'—')+'</span>'+badge+'</div>'+
-      '<div class="ac-info">'+(o.p?'<span>📱 '+esc(o.p)+'</span>':'')+otp+'</div></div>';
+      '<div class="ac-info">'+(o.p?'<span>📱 '+esc(o.p)+'</span>':'')+otp+page+ago+'</div></div>';
   }).join('');
 }
 
