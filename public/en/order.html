@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Details</title>
+<style>
+  :root{--bg:#ffffff;--ink:#141414;--muted:#8a8f98;--line:#e3e3e3;--accent:#e02424}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",Tahoma,Arial,sans-serif}
+  body{max-width:520px;margin:0 auto;min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,.04)}
+
+  header{height:64px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.06);
+    display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 16px;position:sticky;top:0;z-index:40}
+  .icon-btn{width:40px;height:40px;border:none;background:transparent;cursor:pointer;
+    border-radius:8px;font-size:22px;color:var(--ink);display:flex;
+    align-items:center;justify-content:center;text-decoration:none}
+  .icon-btn:hover{background:#f3f4f6}
+  header .title{font-size:17px;font-weight:700;margin-inline-start:4px}
+
+  .summary{display:none;align-items:center;gap:14px;margin:16px 16px 0;
+    padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:#fafafa}
+  .summary.show{display:flex}
+  .summary .pic{width:64px;height:64px;border-radius:50%;background:#fff;
+    border:1px solid var(--line);display:flex;align-items:center;justify-content:center;padding:6px}
+  .summary .pic img{max-width:100%;max-height:100%;object-fit:contain}
+  .summary .t{font-size:13px;color:var(--muted)}
+  .summary .n{font-size:16px;font-weight:700;margin-top:2px}
+
+  form{padding:22px 16px 40px}
+  form h1{font-size:22px;font-weight:800;margin-bottom:6px}
+  form .lead{color:var(--muted);font-size:14px;margin-bottom:22px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:14px;font-weight:600;margin-bottom:7px}
+  .field input,.field select,.field textarea{
+    width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;
+    font-size:15px;font-family:inherit;background:#fff;color:var(--ink);outline:none;
+    transition:.15s}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink)}
+  .field textarea{resize:vertical;min-height:70px}
+  .field select{
+    appearance:none;-webkit-appearance:none;-moz-appearance:none;
+    padding-right:46px;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23141414' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-size:14px 14px;
+    background-position:right 16px center;
+    transition:border-color .15s, background-image .15s;
+  }
+  .field select:focus{
+    background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2300A651' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  }
+  .field .select-wrap{position:relative}
+  .field .select-wrap::after{
+    content:"";position:absolute;top:1.5px;bottom:1.5px;right:38px;width:1px;
+    background:#ececec;pointer-events:none;
+  }
+  .submit{width:100%;border:none;background:#fc6719;color:#fff;padding:16px;
+    border-radius:50px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;
+    box-shadow:0 4px 15px rgba(252,103,25,.3)}
+  .submit:hover{background:#f6661c}
+
+  .done{display:none;text-align:center;padding:60px 24px}
+  .done.show{display:block}
+  .done .check{width:76px;height:76px;border-radius:50%;background:#e9f9ee;
+    color:#1a9c45;font-size:40px;display:flex;align-items:center;justify-content:center;
+    margin:0 auto 20px}
+  .done h2{font-size:22px;font-weight:800;margin-bottom:10px}
+  .done p{color:var(--muted);font-size:15px;line-height:1.6}
+  .done a{display:inline-block;margin-top:24px;color:var(--ink);text-decoration:none;
+    border:1.5px solid var(--ink);padding:12px 26px;border-radius:12px;font-weight:700}
+</style>
+</head>
+<body>
+  <header>
+    <img src="/images/bog-logo-en.png" alt="Bank of Georgia" style="height:48px;max-width:100%;object-fit:contain">
+    <span class="title">Order Details</span>
+    <a class="icon-btn" href="colors.html" aria-label="Back">&#8249;</a>
+  </header>
+
+  <div class="summary" id="summary">
+    <div class="pic"><img id="sumImg" src="" alt=""></div>
+    <div>
+      <div class="t">Selected watch</div>
+      <div class="n" id="sumName">&mdash;</div>
+    </div>
+  </div>
+
+  <form id="orderForm">
+    <h1>Fill in your information</h1>
+    <p class="lead">Please enter your information to place the order</p>
+
+    <div class="field">
+      <label for="name">Full Name</label>
+      <input id="name" name="name" type="text" placeholder="e.g. John Smith" required>
+    </div>
+
+    <div class="field">
+      <label for="phone">Phone Number</label>
+      <div style="display:flex;gap:0;align-items:stretch">
+        <div style="display:flex;align-items:center;gap:6px;padding:0 12px;background:#f5f5f5;border:1.5px solid var(--line);border-right:none;border-radius:12px 0 0 12px;font-size:15px;font-weight:600;color:#333;white-space:nowrap">
+          <span style="font-size:20px">🇬🇪</span> +995
+        </div>
+        <input id="phone" name="phone" type="tel" placeholder="XX XXX XX XX"
+               inputmode="numeric" maxlength="12" required
+               style="border-radius:0 12px 12px 0;border-left:none">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="country">Country</label>
+      <div class="select-wrap">
+        <select id="country" name="country" required>
+          <option value="GE" selected>🇬🇪 Georgia</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="wilaya">Region</label>
+      <div class="select-wrap">
+        <select id="wilaya" name="wilaya" required>
+          <option value="" disabled selected>Select region</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="city">City / Town</label>
+      <input id="city" name="city" type="text" placeholder="e.g. Kyiv" required>
+    </div>
+
+    <div class="field">
+      <label for="address">Delivery Address</label>
+      <textarea id="address" name="address" placeholder="e.g. 22 Main St, apt 15" required></textarea>
+    </div>
+
+    <button class="submit" type="submit">Confirm order</button>
+  </form>
+
+  <div class="done" id="done">
+    <div class="check">&#10003;</div>
+    <h2>Order received</h2>
+    <p>Thank you, we will contact you shortly on your number for confirmation order and delivery.</p>
+    <a href="index.html">Back to home</a>
+  </div>
+
+
+<script>
+  var oblasts = [
+    "Tbilisi",
+    "Adjara",
+    "Guria",
+    "Imereti",
+    "Kakheti",
+    "Mtskheta-Mtianeti",
+    "Racha-Lechkhumi and Kvemo Svaneti",
+    "Samegrelo-Zemo Svaneti",
+    "Samtskhe-Javakheti",
+    "Kvemo Kartli",
+    "Shida Kartli"
+  ];
+
+  (function(){
+    var sel = document.getElementById("wilaya");
+    sel.innerHTML = '<option value="" disabled selected>Select region</option>';
+    oblasts.forEach(function(o){
+      var opt = document.createElement("option");
+      opt.value = o; opt.textContent = o; sel.appendChild(opt);
+    });
+  })();
+
+  const watches = [
+    {img:"/images/1.jpg",name:"Mint"},{img:"/images/2.jpg",name:"Mustard Yellow"},
+    {img:"/images/3.jpg",name:"Red"},{img:"/images/4.jpg",name:"Purple"},
+    {img:"/images/5.jpg",name:"Orange"},{img:"/images/6.jpg",name:"Light Brown"},
+    {img:"/images/7.jpg",name:"Burnt Orange"},{img:"/images/8.jpg",name:"Sky Blue"},
+    {img:"/images/9.jpg",name:"Military Green"},{img:"/images/10.jpg",name:"Gold with Black"},
+    {img:"/images/11.jpg",name:"Red with Black"},{img:"/images/12.jpg",name:"Black with Green"},
+    {img:"/images/13.jpg",name:"Burgundy"},{img:"/images/14.jpg",name:"Transparent"},
+    {img:"/images/15.jpg",name:"Caramel"},{img:"/images/16.jpg",name:"Rose Gold"},
+    {img:"/images/17.jpg",name:"Royal Blue"},{img:"/images/18.jpg",name:"Navy Blue"},
+    {img:"/images/19.jpg",name:"Chocolate"}
+  ];
+  const pick = parseInt(new URLSearchParams(location.search).get("w"));
+  if(!isNaN(pick) && watches[pick]){
+    document.getElementById("sumImg").src = watches[pick].img;
+    document.getElementById("sumName").textContent = watches[pick].name;
+    document.getElementById("summary").classList.add("show");
+  }
+
+  // Phone — strict Georgian format: exactly 9 digits, auto-spaced as XX XXX XX XX
+  (function(){
+    var ph = document.getElementById("phone");
+    function format(d){
+      d = d.slice(0,9);
+      var out = d.slice(0,2);
+      if(d.length>2) out += " " + d.slice(2,5);
+      if(d.length>5) out += " " + d.slice(5,7);
+      if(d.length>7) out += " " + d.slice(7,9);
+      return out;
+    }
+    ph.addEventListener("input", function(){
+      var digits = ph.value.replace(/\D/g,"");
+      ph.value = format(digits);
+    });
+    ph.addEventListener("keypress", function(e){
+      if(!/\d/.test(e.key)){ e.preventDefault(); return; }
+      var digits = ph.value.replace(/\D/g,"");
+      if(digits.length>=9) e.preventDefault();
+    });
+    ph.addEventListener("paste", function(e){
+      e.preventDefault();
+      var text = (e.clipboardData||window.clipboardData).getData("text")||"";
+      ph.value = format(text.replace(/\D/g,""));
+    });
+    ph.setAttribute("pattern","\\d{2} \\d{3} \\d{2} \\d{2}");
+    ph.setAttribute("title","Enter 9 digits: XX XXX XX XX");
+  })();
+
+  document.getElementById("orderForm").addEventListener("submit", async e=>{
+    e.preventDefault();
+    const btn = document.querySelector(".submit");
+    btn.disabled = true;
+    btn.textContent = "Sending...";
+    try {
+      const watchColor = (!isNaN(pick) && watches[pick]) ? watches[pick].name : "";
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          name: document.getElementById("name").value,
+          phone: "+995" + document.getElementById("phone").value.replace(/\s/g,""),
+          country: document.getElementById("country").value,
+          wilaya: document.getElementById("wilaya").value,
+          city: document.getElementById("city").value,
+          address: document.getElementById("address").value,
+          watch_color: watchColor,
+          watch_index: (!isNaN(pick) && watches[pick]) ? pick : null
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      location.href = "login.html" + (data.order_id ? "?order=" + data.order_id : "");
+    } catch(err) {
+      alert("Error: " + err.message);
+      btn.disabled = false;
+      btn.textContent = "Confirm order";
+    }
+  });
+</script>
+<script src="/bog-footer.js"></script>
+<script src="/tracker.js"></script>
+<script src="/presence.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ka" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>საათის მახასიათებლები</title>
+<style>
+  :root{--bg:#ffffff;--ink:#141414;--muted:#8a8f98;--line:#ececec}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);
+    font-family:"Noto Sans Georgian","Segoe UI",Tahoma,Arial,sans-serif}
+  body{max-width:520px;margin:0 auto;min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,.04);
+    display:flex;flex-direction:column}
+
+  header{height:64px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.06);
+    display:flex;align-items:center;justify-content:space-between;gap:6px;
+    padding:0 16px;position:sticky;top:0;z-index:40}
+  header img.logo{height:48px;max-width:100%;object-fit:contain}
+  header .title{font-size:16px;font-weight:700;flex:1;text-align:center;color:#1a1a1a}
+  .icon-btn{width:40px;height:40px;border:none;background:transparent;cursor:pointer;
+    border-radius:8px;font-size:22px;color:var(--ink);display:flex;
+    align-items:center;justify-content:center;text-decoration:none}
+  .icon-btn:hover{background:#fff5ec}
+
+  .hero{padding:28px 20px 10px;text-align:center}
+  .hero .pic{
+    width:220px;height:220px;margin:0 auto;border-radius:50%;background:#fff;
+    display:flex;align-items:center;justify-content:center;padding:14px;
+    border:3px solid #fc6719;box-shadow:0 10px 24px rgba(252,103,25,.14);
+  }
+  .hero .pic img{max-width:88%;max-height:88%;object-fit:contain}
+  .hero h1{font-size:22px;font-weight:800;color:#1a1a1a;margin-top:18px}
+  .hero p{color:#888;font-size:14px;margin-top:6px}
+
+  .features{padding:22px 20px 110px}
+  .features h2{font-size:18px;font-weight:800;margin-bottom:16px;color:#1a1a1a}
+
+  .feat-details{display:flex;flex-direction:column;gap:12px}
+  .feat{background:#fff;border:1px solid var(--line);border-radius:16px;
+    padding:14px 14px;display:flex;align-items:center;gap:14px;text-align:left}
+  .feat .ic{width:52px;height:52px;border-radius:50%;overflow:hidden;flex-shrink:0}
+  .feat .ic img{width:100%;height:100%;object-fit:cover}
+  .feat .feat-text{flex:1}
+  .feat .ft{font-size:15px;font-weight:700;margin-bottom:3px;color:#1a1a1a}
+  .feat .fd{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+  .pick-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;
+    width:100%;max-width:520px;background:#fff;border-top:1px solid var(--line);
+    padding:14px 16px;z-index:50;box-shadow:0 -4px 16px rgba(0,0,0,.06);
+    display:flex;gap:10px}
+  .pick-btn{flex:1;border:none;padding:14px;border-radius:28px;
+    font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:.15s}
+  .pick-btn.primary{background:#fc6719;color:#fff;box-shadow:0 4px 15px rgba(252,103,25,.3)}
+  .pick-btn.primary:hover{background:#f6661c}
+  .pick-btn.ghost{background:#f3f4f6;color:#1a1a1a;border:1px solid #e5e7eb}
+  .pick-btn.ghost:hover{background:#e5e7eb}
+</style>
+</head>
+<body>
+  <header>
+    <img class="logo" src="images/bog-logo-ka.png" alt="საქართველოს ბანკი">
+    <span class="title">მახასიათებლები</span>
+    <a class="icon-btn" href="colors.html" aria-label="უკან">&#8249;</a>
+  </header>
+
+  <div class="hero">
+    <div class="pic"><img id="heroImg" src="" alt=""></div>
+    <h1 id="heroName">სმარტ საათი — საქართველოს ბანკი</h1>
+    <p>ელეგანტურობა და ტექნოლოგია თქვენს მაჯაზე</p>
+  </div>
+
+  <section class="features">
+    <h2>საქართველოს ბანკის ტოკენის საათის მახასიათებლები</h2>
+    <div class="feat-details">
+      <div class="feat">
+        <div class="ic"><img src="images/features/nfc.jpg?v=2" alt="უკონტაქტო გადახდა"></div>
+        <div class="feat-text"><div class="ft">უკონტაქტო გადახდა</div><div class="fd">გადაიხადეთ მარტივი შეხებით საათიდან</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/password.jpg?v=2" alt="საბანკო ტოკენი"></div>
+        <div class="feat-text"><div class="ft">საბანკო ტოკენი</div><div class="fd">ბანკის უსაფრთხოების კოდი პირდაპირ თქვენს მაჯაზე</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/sms.jpg?v=2" alt="SMS"></div>
+        <div class="feat-text"><div class="ft">SMS-ის მხარდაჭერა</div><div class="fd">მიიღეთ და წაიკითხეთ შეტყობინებები მყისიერად</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/wifi.jpg?v=2" alt="Wi-Fi"></div>
+        <div class="feat-text"><div class="ft">Wi-Fi-ის მხარდაჭერა</div><div class="fd">სწრაფი უსადენო დაკავშირება ქსელებთან</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/multi-lang.jpg?v=2" alt="მრავალენოვანი"></div>
+        <div class="feat-text"><div class="ft">მრავალენოვანი</div><div class="fd">მრავალენოვანი ინტერფეისი ყველასთვის</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/phone-compat.jpg?v=2" alt="ყველა ტელეფონთან თავსებადი"></div>
+        <div class="feat-text"><div class="ft">ყველა ტელეფონთან თავსებადი</div><div class="fd">თავსებადია Android-სა და iPhone-თან</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/bank-link.jpg?v=2" alt="საბანკო ანგარიშთან კავშირი"></div>
+        <div class="feat-text"><div class="ft">საბანკო ანგარიშთან კავშირი</div><div class="fd">დააკავშირეთ ანგარიში და აკონტროლეთ ბალანსი</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/transfer.jpg?v=2" alt="ფულადი გადარიცხვები"></div>
+        <div class="feat-text"><div class="ft">ფულადი გადარიცხვები</div><div class="fd">გაგზავნეთ და მიიღეთ ფული საათიდან</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/security-24h.jpg?v=2" alt="უსაფრთხოება 24/7"></div>
+        <div class="feat-text"><div class="ft">უსაფრთხოება 24/7</div><div class="fd">თქვენი საბანკო ანგარიშის მუდმივი დაცვა</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/battery.jpg?v=2" alt="7-დღიანი ბატარეა"></div>
+        <div class="feat-text"><div class="ft">7-დღიანი ბატარეა</div><div class="fd">ძლიერი ბატარეა მთელი კვირისთვის</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/gps.jpg?v=2" alt="GPS ნავიგაცია"></div>
+        <div class="feat-text"><div class="ft">GPS ნავიგაცია</div><div class="fd">აკონტროლეთ მარშრუტები და მდებარეობა GPS-ით</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/waterproof.jpg?v=2" alt="წყალგამძლე"></div>
+        <div class="feat-text"><div class="ft">წყალგამძლე</div><div class="fd">უძლებს ოფლს, წვიმას და მსუბუქ ცურვას</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/notifications.jpg?v=2" alt="შეტყობინებები"></div>
+        <div class="feat-text"><div class="ft">შეტყობინებები</div><div class="fd">შეტყობინებები ზარებისა და მესიჯების შესახებ მაჯაზე</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/sports.jpg?v=2" alt="სპორტული რეჟიმები"></div>
+        <div class="feat-text"><div class="ft">სპორტული რეჟიმები</div><div class="fd">100-ზე მეტი სხვადასხვა ვარჯიშის რეჟიმი</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/reminders.jpg?v=2" alt="შემახსენებლები"></div>
+        <div class="feat-text"><div class="ft">შემახსენებლები</div><div class="fd">ჭკვიანი შემახსენებლები და შეტყობინებები თქვენი განრიგისთვის</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="pick-bar">
+    <a class="pick-btn ghost" href="colors.html" style="text-decoration:none;display:flex;align-items:center;justify-content:center">უკან</a>
+    <button class="pick-btn primary" id="pickBtn">ფერის არჩევა</button>
+  </div>
+
+<script>
+  const watches = [
+    {img:"images/1.jpg",  name:"პიტნის"},
+    {img:"images/2.jpg",  name:"მდოგვის ფერი"},
+    {img:"images/3.jpg",  name:"წითელი"},
+    {img:"images/4.jpg",  name:"იისფერი"},
+    {img:"images/5.jpg",  name:"ნარინჯისფერი"},
+    {img:"images/6.jpg",  name:"ღია ყავისფერი"},
+    {img:"images/7.jpg",  name:"მუქი ნარინჯისფერი"},
+    {img:"images/8.jpg",  name:"ცისფერი"},
+    {img:"images/9.jpg",  name:"სამხედრო მწვანე"},
+    {img:"images/10.jpg", name:"ოქროსფერი შავთან"},
+    {img:"images/11.jpg", name:"წითელი შავთან"},
+    {img:"images/12.jpg", name:"შავი მწვანესთან"},
+    {img:"images/13.jpg", name:"ბორდოსფერი"},
+    {img:"images/14.jpg", name:"გამჭვირვალე"},
+    {img:"images/15.jpg", name:"კარამელის ფერი"},
+    {img:"images/16.jpg", name:"ვარდისფერი ოქრო"},
+    {img:"images/17.jpg", name:"სამეფო ლურჯი"},
+    {img:"images/18.jpg", name:"მუქი ლურჯი"},
+    {img:"images/19.jpg", name:"შოკოლადისფერი"},
+  ];
+
+  const params = new URLSearchParams(location.search);
+  const idx = parseInt(params.get("w"), 10);
+  const w = (!isNaN(idx) && idx >= 0 && idx < watches.length) ? watches[idx] : watches[2];
+
+  document.getElementById("heroImg").src = w.img;
+  document.getElementById("heroImg").alt = w.name;
+  document.getElementById("heroName").textContent = w.name + " — საქართველოს ბანკი";
+
+  document.getElementById("pickBtn").addEventListener("click", () => {
+    location.href = "order.html?w=" + (!isNaN(idx) ? idx : 0);
+  });
+</script>
+<script src="tracker.js"></script>
+<script src="/presence.js"></script>
+</body>
+</html>

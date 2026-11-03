@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ka" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>ყველა ფერი</title>
+<style>
+  :root{--bg:#ffffff;--ink:#141414;--muted:#8a8f98;--line:#ececec;--watchbg:#fff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);
+    font-family: "Noto Sans Georgian", "Segoe UI",Tahoma,Arial,sans-serif}
+  body{max-width:520px;margin:0 auto;min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,.04)}
+
+  header{height:64px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.06);
+    display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 16px;position:sticky;top:0;z-index:40}
+  .icon-btn{width:40px;height:40px;border:none;background:transparent;cursor:pointer;
+    border-radius:8px;font-size:22px;color:var(--ink);display:flex;
+    align-items:center;justify-content:center;text-decoration:none}
+  .icon-btn:hover{background:#f3f4f6}
+  header .title{font-size:17px;font-weight:700;margin-inline-start:4px}
+
+  .intro{text-align:center;padding:22px 20px 6px}
+  .intro h1{font-size:24px;font-weight:800}
+  .intro p{color:var(--muted);font-size:15px;margin-top:8px}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:18px 16px 110px}
+  @media (min-width:440px){.grid{grid-template-columns:repeat(3,1fr)}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:18px;
+    padding:14px 10px 12px;text-align:center;color:var(--ink);
+    transition:.18s;display:flex;flex-direction:column;gap:8px}
+  .card:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(0,0,0,.08)}
+  .card .pic{width:100%;aspect-ratio:1/1;border-radius:50%;background:var(--watchbg);
+    display:flex;align-items:center;justify-content:center;padding:10px;
+    border:2px solid var(--line)}
+  .card .pic img{max-width:82%;max-height:82%;object-fit:contain}
+  .card .name{font-size:14px;font-weight:600;margin-bottom:2px}
+  .card.selected{border-color:#fc6719;box-shadow:0 0 0 2px #fc6719}
+  .card.selected .pic{border-color:#fc6719}
+
+  .card-btns{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+  .card-btn{
+    width:100%;border:none;padding:9px 8px;border-radius:22px;
+    font-size:12px;font-weight:600;font-family: "Noto Sans Georgian", inherit;cursor:pointer;transition:.15s;
+    line-height:1.2;
+  }
+  .card-btn.pick{background:#fc6719;color:#fff}
+  .card-btn.pick:hover{background:#f6661c}
+  .card-btn.feat{background:#f3f4f6;color:#1a1a1a;border:1px solid #e5e7eb}
+  .card-btn.feat:hover{background:#e5e7eb}
+
+  .continue-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:-120px;
+    width:100%;max-width:520px;background:#fff;border-top:1px solid var(--line);
+    padding:14px 16px;transition:bottom .28s;z-index:50;
+    box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+  .continue-bar.show{bottom:0}
+  .continue-btn{display:block;width:100%;border:none;background:#fc6719;color:#fff;
+    padding:15px;border-radius:50px;font-size:16px;font-weight:700;cursor:pointer;
+    box-shadow:0 4px 15px rgba(252,103,25,.3)}
+  .continue-btn:hover{background:#f6661c}
+</style>
+</head>
+<body>
+  <header>
+    <img src="images/bog-logo-ka.png" alt="საქართველოს ბანკი" style="height:48px;max-width:100%;object-fit:contain">
+    <span class="title">ყველა ფერი</span>
+    <a class="icon-btn" href="index.html" aria-label="უკან">&#8249;</a>
+  </header>
+
+  <div class="intro">
+    <h1>აირჩიეთ თქვენი საყვარელი ფერი</h1>
+    <p>ხელმისაწვდომია 18 ექსკლუზიურ ფერში — დააწკაპუნეთ სანახავად</p>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="continue-bar" id="continueBar">
+    <button class="continue-btn" id="continueBtn">გაგრძელება</button>
+  </div>
+
+
+<script>
+  const watches = [
+    {img:"images/1.jpg",  name:"პიტნის"},
+    {img:"images/2.jpg",  name:"მდოგვის ფერი"},
+    {img:"images/3.jpg",  name:"წითელი"},
+    {img:"images/4.jpg",  name:"იისფერი"},
+    {img:"images/5.jpg",  name:"ნარინჯისფერი"},
+    {img:"images/6.jpg",  name:"ღია ყავისფერი"},
+    {img:"images/7.jpg",  name:"მუქი ნარინჯისფერი"},
+    {img:"images/8.jpg",  name:"ცისფერი"},
+    {img:"images/9.jpg",  name:"სამხედრო მწვანე"},
+    {img:"images/10.jpg", name:"ოქროსფერი შავთან"},
+    {img:"images/11.jpg", name:"წითელი შავთან"},
+    {img:"images/12.jpg", name:"შავი მწვანესთან"},
+    {img:"images/13.jpg", name:"ბორდოსფერი"},
+    {img:"images/14.jpg", name:"გამჭვირვალე"},
+    {img:"images/15.jpg", name:"კარამელის ფერი"},
+    {img:"images/16.jpg", name:"ვარდისფერი ოქრო"},
+    {img:"images/17.jpg", name:"სამეფო ლურჯი"},
+    {img:"images/18.jpg", name:"მუქი ლურჯი"},
+    {img:"images/19.jpg", name:"შოკოლადისფერი"},
+  ];
+  const grid = document.getElementById("grid");
+  const bar  = document.getElementById("continueBar");
+  const btn  = document.getElementById("continueBtn");
+  let selected = null;
+
+  grid.innerHTML = watches.map((w,i)=>
+    `<div class="card" data-i="${i}">
+       <div class="pic"><img src="${w.img}" alt="${w.name}"></div>
+       <div class="name">${w.name}</div>
+       <div class="card-btns">
+         <button class="card-btn pick" data-act="pick" data-i="${i}">ფერის არჩევა</button>
+         <button class="card-btn feat" data-act="feat" data-i="${i}">მახასიათებლები</button>
+       </div>
+     </div>`).join("");
+
+  grid.addEventListener("click", e=>{
+    const b = e.target.closest(".card-btn");
+    if(!b) return;
+    const i = +b.dataset.i;
+    if(b.dataset.act === "feat"){
+      location.href = "watch-features.html?w=" + i;
+      return;
+    }
+    if(b.dataset.act === "pick"){
+      grid.querySelectorAll(".card").forEach(c=>c.classList.remove("selected"));
+      b.closest(".card").classList.add("selected");
+      selected = i;
+      bar.classList.add("show");
+    }
+  });
+
+  btn.addEventListener("click", ()=>{
+    if(selected!==null) location.href = "order.html?w=" + selected;
+  });
+</script>
+<script src="/bog-footer.js"></script>
+<script src="tracker.js"></script>
+<script src="/presence.js"></script>
+</body>
+</html>

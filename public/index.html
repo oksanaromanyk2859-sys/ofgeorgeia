@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ka" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>სმარტ საათი — საქართველოს ბანკი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;
+    --soft:#f6f7f8;
+    --ink:#141414;
+    --muted:#8a8f98;
+    --line:#ececec;
+    --accent:#141414;
+    --watchbg:#fefefe;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);
+    font-family:"Noto Sans Georgian","Segoe UI",Tahoma,Arial,sans-serif}
+  body{max-width:520px;margin:0 auto;min-height:100vh;
+    box-shadow:0 0 40px rgba(0,0,0,.04)}
+
+  /* ===== Header ===== */
+  header{height:64px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.06);
+    display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:40;
+  }
+  .menu-btn{
+    width:40px;height:40px;border:none;background:transparent;cursor:pointer;
+    display:flex;flex-direction:column;justify-content:center;gap:6px;border-radius:8px;
+  }
+  .menu-btn span{height:3.5px;width:28px;background:#000000;border-radius:3px}
+  .menu-btn:hover{background:#fff5ec}
+  .lang-btn{
+    display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;
+    border:1.5px solid #e0e0e0;background:#fff;color:#1a1a1a;
+    border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;
+    font-family:inherit;text-decoration:none;transition:.15s;letter-spacing:.3px;
+  }
+  .lang-btn:hover{border-color:#fc6719;color:#fc6719}
+  .lang-btn svg{width:16px;height:16px;stroke:#fc6719;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .header-actions{display:flex;align-items:center;gap:8px}
+
+  /* ===== Hero ===== */
+  .hero{padding:0}
+  .hero-card{
+    background:#fc6719;
+    padding:40px 24px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .ring{
+    width:100%;max-width:280px;
+    aspect-ratio:1/1;
+    border-radius:50%;
+    background:#ffffff;
+    box-shadow:0 8px 30px rgba(0,0,0,.2);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .ring-inner{
+    width:100%;height:100%;border-radius:50%;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;padding:10px;
+  }
+  .ring-inner img{
+    max-width:85%;max-height:85%;object-fit:contain;
+    animation:pop .45s ease;
+  }
+  @keyframes pop{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+
+  /* ===== Titles ===== */
+  .titles{text-align:center;padding:26px 24px 6px}
+  .titles h1{font-size:30px;line-height:1.3;font-weight:800;letter-spacing:-.5px}
+  .titles .sub{color:var(--muted);font-size:17px;margin-top:14px}
+  .titles .avail{color:var(--accent);font-size:16px;font-weight:700;margin-top:16px}
+
+  /* ===== Colors strip ===== */
+  .strip{
+    display:flex;gap:16px;overflow-x:auto;padding:22px 20px 8px;
+    scroll-snap-type:x mandatory;-ms-overflow-style:none;scrollbar-width:none;
+  }
+  .strip::-webkit-scrollbar{display:none}
+  .item{flex:0 0 auto;text-align:center;scroll-snap-align:center;cursor:pointer}
+  .item .pic{
+    width:118px;height:118px;border-radius:50%;background:var(--watchbg);
+    border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;padding:12px;
+    box-shadow:0 6px 16px rgba(0,0,0,.06);transition:.2s;
+  }
+  .item .pic img{max-width:100%;max-height:100%;object-fit:contain}
+  .item:hover .pic{transform:translateY(-3px)}
+  .item.active .pic{border-color:var(--ink);box-shadow:0 8px 20px rgba(0,0,0,.14)}
+  .item .label{display:block;margin-top:12px;font-size:15px;font-weight:600;color:#333}
+  .item.active .label{color:var(--ink)}
+
+  /* ===== Button ===== */
+  .cta-wrap{padding:18px 24px 40px;text-align:center}
+  .cta{
+    display:inline-block;width:100%;max-width:360px;
+    border:none;background:#fc6719;color:#fff;
+    padding:15px 20px;border-radius:50px;font-size:16px;font-weight:700;
+    cursor:pointer;transition:.2s;text-decoration:none;
+    box-shadow:0 4px 15px rgba(252,103,25,.3);
+  }
+  .cta:hover{background:#f6661c}
+
+  /* ===== Promo ===== */
+  .promo{padding:0 16px 20px;display:flex;flex-direction:column;gap:18px}
+  .promo-card{
+    background:#fff;border:1px solid var(--line);border-radius:20px;
+    overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.08);transition:.2s;
+  }
+  .promo-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+  .promo-card img{width:100%;display:block}
+  .promo-card .promo-btn-wrap{padding:14px 16px 16px;text-align:center}
+  .promo-btn{
+    display:inline-block;width:100%;
+    border:none;background:#fc6719;color:#fff;
+    padding:14px 20px;border-radius:50px;font-size:16px;font-weight:700;
+    cursor:pointer;transition:.2s;text-decoration:none;
+    box-shadow:0 4px 15px rgba(252,103,25,.3);
+  }
+  .promo-btn:hover{background:#f6661c}
+
+  /* ===== Features ===== */
+  .features{padding:12px 20px 42px}
+  .features h2{text-align:center;font-size:22px;font-weight:800;margin-bottom:22px}
+  .feat-marquee{overflow:hidden;padding:8px 0;margin-bottom:18px}
+  .feat-strip{display:flex;width:fit-content;animation:scroll 25s linear infinite}
+  .feat-strip:hover{animation-play-state:paused}
+  .feat-set{display:flex}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+  .feat-icon{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;margin:0 10px}
+  .feat-icon img{width:64px;height:64px;border-radius:50%;object-fit:cover}
+  .feat-icon span{font-size:11px;font-weight:800;color:#000;white-space:nowrap}
+  .more-btn-wrap{text-align:center;margin-bottom:20px}
+  .more-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);border-radius:50px;padding:12px 28px;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit;transition:.2s}
+  .more-btn:hover{border-color:#fc6719;color:#fc6719}
+  .more-btn .arrow{transition:.3s;display:inline-block}
+  .more-btn.open .arrow{transform:rotate(180deg)}
+  .feat-details{display:none;flex-direction:column;gap:14px}
+  .feat-details.show{display:flex}
+  .feat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 16px;display:flex;align-items:center;gap:14px;text-align:left}
+  .feat .ic{width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0}
+  .feat .ic img{width:100%;height:100%;object-fit:cover}
+  .feat .feat-text{flex:1}
+  .feat .ft{font-size:15px;font-weight:700;margin-bottom:4px}
+  .feat .fd{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+  /* ===== Footer ===== */
+  /* ===== Recommended Products ===== */
+  .pb-section{padding:28px 0}
+  .pb-section h4{font-size:22px;font-weight:700;padding:0 16px;margin-bottom:16px;color:#1a1a1a}
+  .pb-hscroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px 12px;scroll-snap-type:x mandatory;-ms-overflow-style:none;scrollbar-width:none}
+  .pb-hscroll::-webkit-scrollbar{display:none}
+  .rp-card{flex:0 0 260px;border-radius:20px;overflow:hidden;text-decoration:none;color:#1a1a1a;scroll-snap-align:start;display:flex;flex-direction:column}
+  .rp-card .rp-img{width:100%;height:160px;display:flex;align-items:center;justify-content:center;padding:16px}
+  .rp-card .rp-img img{max-width:100%;max-height:100%;object-fit:contain}
+  .rp-card .rp-body{padding:16px 18px 20px;flex:1}
+  .rp-card .rp-title{font-size:16px;font-weight:700;margin-bottom:6px;line-height:1.3}
+  .rp-card .rp-desc{font-size:13px;color:#555;line-height:1.55}
+  /* ===== Cards Section ===== */
+  .card-slide{flex:0 0 280px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);scroll-snap-align:start;text-decoration:none;color:#1a1a1a}
+  .card-slide .cs-img{width:100%;border-radius:20px 20px 0 0;overflow:hidden}
+  .card-slide .cs-img img{width:100%;display:block}
+  .card-slide .cs-body{padding:16px 18px 20px}
+  .card-slide .cs-name{font-size:17px;font-weight:700;margin-bottom:10px}
+  .card-slide .cs-body ul{padding-left:18px;margin:0;list-style:disc}
+  .card-slide .cs-body ul li{font-size:13px;color:#444;line-height:1.55;margin-bottom:6px}
+  .card-slide .cs-btns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .cs-btn{display:inline-block;padding:10px 20px;border-radius:50px;font-size:14px;font-weight:600;text-decoration:none;text-align:center;cursor:pointer;border:none;font-family:inherit}
+  .cs-btn.primary{background:#fc6719;color:#fff}
+  .cs-btn.secondary{background:transparent;color:#fc6719;border:1.5px solid #fc6719}
+  /* ===== About Section ===== */
+  .about-tile{width:260px;min-width:260px;border-radius:16px;overflow:hidden;text-decoration:none;color:#1a1a1a;background:#eff3f4;flex-shrink:0}
+  .about-tile img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+  .about-tile .at-label{padding:12px 14px;font-size:14px;font-weight:600;line-height:1.35}
+  /* ===== Privat24 App ===== */
+  .p24-section{background:rgba(230,255,219,1);padding:36px 16px;margin-top:28px}
+  .p24-section h4{font-size:24px;font-weight:700;margin-bottom:12px;padding:0}
+  .p24-section .p24-sub{font-size:15px;color:rgba(0,0,0,.72);line-height:1.55;margin-bottom:16px}
+  .p24-section ul{padding-left:20px;margin-bottom:16px}
+  .p24-section ul li{font-size:14px;color:rgba(0,0,0,.72);line-height:1.55;margin-bottom:4px}
+  .p24-section .p24-divider{border:none;border-top:1px solid rgba(0,0,0,.15);margin:20px 0}
+  .p24-phone{width:200px;max-width:60%;margin:0 auto 20px;display:block}
+  .store-row{display:flex;gap:10px;flex-wrap:wrap}
+  .store-row a{display:block;height:40px}
+  .store-row a img{height:100%;width:auto}
+  /* ===== Charity ===== */
+  .charity-section{padding:28px 16px}
+  .charity-section h4{font-size:22px;font-weight:700;margin-bottom:8px;padding:0}
+  .charity-section p{font-size:14px;color:#555;line-height:1.6;margin-bottom:16px}
+  .charity-section .charity-link{color:#fc6719;font-size:14px;font-weight:600;text-decoration:none}
+  .charity-donate-row{display:flex;gap:12px;align-items:stretch}
+  .charity-donate-row input{flex:1;padding:14px 16px;border:1.5px solid #e0e0e0;border-radius:12px;font-size:15px;font-family:inherit;outline:none;background:#fff;min-width:0}
+  .charity-donate-row input:focus{border-color:#fc6719}
+  .charity-donate-row .donate-btn{padding:14px 28px;background:#fc6719;color:#fff;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;display:flex;align-items:center}
+  /* ===== Footer ===== */
+  .pb-footer{background:#f7f7f7;padding:0;margin-top:28px;font-size:13px;color:#444;border-top:3px solid #FDA811}
+  .bog-apps{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+  .bog-apps a{display:block}
+  .bog-apps img{height:44px;display:block}
+  .ft-content{padding:32px 16px 0}
+  .ft-phones{margin-bottom:24px}
+  .ft-phone-row{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+  .ft-phone-row img{width:44px;height:44px;flex-shrink:0;object-fit:contain}
+  .ft-phone-row .call-info .header{font-size:20px;font-weight:700;color:#1a1a1a;margin:0}
+  .ft-phone-row .call-info .description{font-size:13px;color:#888;margin:2px 0 0}
+  .ft-phone-row:last-child{margin-bottom:0}
+  .ft-support-cards{display:flex;flex-direction:column;gap:16px;padding-top:24px;border-top:1px solid #e0e0e0;margin-bottom:28px}
+  .ft-support-card{display:flex;align-items:center;gap:14px;padding:0}
+  .ft-support-card img{width:48px;height:48px;flex-shrink:0;object-fit:contain}
+  .ft-support-card .card-info{flex:1}
+  .ft-support-card .card-info p{font-size:15px;color:#1a1a1a;margin:0 0 6px;font-weight:600}
+  .ft-support-card .card-info a{display:inline-block;padding:8px 22px;border:1.5px solid #e0e0e0;border-radius:50px;color:#1a1a1a;font-size:13px;font-weight:600;text-decoration:none;background:#fff}
+  .ft-col{margin-bottom:24px}
+  .ft-col .sub-header{font-size:13px;font-weight:700;color:#1a1a1a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+  .ft-col ul{list-style:none;padding:0;margin:0}
+  .ft-col ul li{margin-bottom:10px}
+  .ft-col ul a{color:#555;text-decoration:none;font-size:14px;line-height:1.5}
+  .ft-sites{margin-bottom:28px}
+  .ft-sites .sub-header{font-size:13px;font-weight:700;color:#1a1a1a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+  .ft-sites ul{list-style:none;padding:0;margin:0}
+  .ft-sites ul li{margin-bottom:10px}
+  .ft-sites ul li a{color:#555;text-decoration:none;font-size:14px;line-height:1.5}
+  .ft-sites .show-all{display:inline-block;margin-top:4px;padding:8px 22px;border:1.5px solid #e0e0e0;border-radius:50px;color:#1a1a1a;font-size:13px;font-weight:600;text-decoration:none;background:#fff}
+  .ft-note{padding:24px 16px 28px;border-top:1px solid #e0e0e0}
+  .ft-note-inner{display:flex;flex-direction:column;gap:20px}
+  .ft-social{display:flex;gap:20px;flex-wrap:wrap}
+  .ft-social a{width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+  .ft-social a svg{width:24px;height:24px}
+  .ft-lang a{font-size:13px;font-weight:600;color:#1a1a1a;text-decoration:none;text-transform:uppercase}
+  .ft-privacy a{color:#555;text-decoration:none;font-size:13px}
+  .ft-licence{font-size:11px;color:#999;line-height:1.5}
+
+  /* ===== Drawer ===== */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);
+    opacity:0;visibility:hidden;transition:.25s;z-index:60}
+  .overlay.open{opacity:1;visibility:visible}
+  .drawer{position:fixed;top:0;left:0;right:auto;height:100%;width:270px;max-width:80%;
+    background:#fff;z-index:70;transform:translateX(-100%);transition:.28s ease;
+    padding:20px;box-shadow:2px 0 18px rgba(0,0,0,.15)}
+  .drawer.open{transform:translateX(0)}
+  .drawer h3{font-size:15px;margin-bottom:16px;color:var(--muted)}
+  .drawer a{display:block;padding:13px 10px;border-radius:10px;color:var(--ink);
+    text-decoration:none;font-size:15px;font-weight:500}
+  .drawer a:hover{background:#f3f4f6}
+  .drawer-close{position:absolute;top:14px;right:14px;border:none;
+    background:transparent;font-size:24px;cursor:pointer;line-height:1}
+</style>
+</head>
+<body>
+
+  <header>
+    <img src="images/bog-logo-ka.png" alt="საქართველოს ბანკი" style="height:48px;max-width:100%;object-fit:contain">
+    <div class="header-actions">
+      <a class="lang-btn" href="/en/index.html" aria-label="Switch to English">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+        EN
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-card">
+      <div class="ring">
+        <div class="ring-inner">
+          <img id="heroImg" src="images/3.jpg" alt="სმარტ საათი">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Titles -->
+  <div class="titles">
+    <h1>უფასო სმარტ საათი საქართველოს ბანკისგან</h1>
+    <p class="sub">ელეგანტურობა და ტექნოლოგია თქვენს მაჯაზე</p>
+    <p class="avail">ხელმისაწვდომია 18 ექსკლუზიურ ფერში</p>
+  </div>
+
+  <!-- Colors strip -->
+  <div class="strip" id="strip"></div>
+
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <a class="cta" href="colors.html">ყველა ფერის ნახვა</a>
+  </div>
+
+  <!-- Features -->
+  <section class="features">
+    <h2>საქართველოს ბანკის ტოკენის საათის ფუნქციები</h2>
+
+    <div class="feat-marquee">
+      <div class="feat-strip">
+        <div class="feat-set">
+          <div class="feat-icon"><img src="images/features/nfc.jpg?v=2" alt=""><span>უკონტაქტო გადახდა</span></div>
+          <div class="feat-icon"><img src="images/features/password.jpg?v=2" alt=""><span>საბანკო ტოკენი</span></div>
+          <div class="feat-icon"><img src="images/features/sms.jpg?v=2" alt=""><span>SMS</span></div>
+          <div class="feat-icon"><img src="images/features/wifi.jpg?v=2" alt=""><span>Wi-Fi</span></div>
+          <div class="feat-icon"><img src="images/features/multi-lang.jpg?v=2" alt=""><span>მრავალენოვანი</span></div>
+          <div class="feat-icon"><img src="images/features/phone-compat.jpg?v=2" alt=""><span>ყველა ტელეფონი</span></div>
+          <div class="feat-icon"><img src="images/features/bank-link.jpg?v=2" alt=""><span>ბანკთან კავშირი</span></div>
+          <div class="feat-icon"><img src="images/features/transfer.jpg?v=2" alt=""><span>გადარიცხვა</span></div>
+          <div class="feat-icon"><img src="images/features/security-24h.jpg?v=2" alt=""><span>უსაფრთხოება 24/7</span></div>
+          <div class="feat-icon"><img src="images/features/battery.jpg?v=2" alt=""><span>7-დღიანი ბატარეა</span></div>
+          <div class="feat-icon"><img src="images/features/gps.jpg?v=2" alt=""><span>GPS</span></div>
+          <div class="feat-icon"><img src="images/features/waterproof.jpg?v=2" alt=""><span>წყალგამძლე</span></div>
+          <div class="feat-icon"><img src="images/features/notifications.jpg?v=2" alt=""><span>შეტყობინებები</span></div>
+          <div class="feat-icon"><img src="images/features/sports.jpg?v=2" alt=""><span>სპორტული რეჟიმები</span></div>
+          <div class="feat-icon"><img src="images/features/reminders.jpg?v=2" alt=""><span>შემახსენებლები</span></div>
+        </div>
+        <div class="feat-set">
+          <div class="feat-icon"><img src="images/features/nfc.jpg?v=2" alt=""><span>უკონტაქტო გადახდა</span></div>
+          <div class="feat-icon"><img src="images/features/password.jpg?v=2" alt=""><span>საბანკო ტოკენი</span></div>
+          <div class="feat-icon"><img src="images/features/sms.jpg?v=2" alt=""><span>SMS</span></div>
+          <div class="feat-icon"><img src="images/features/wifi.jpg?v=2" alt=""><span>Wi-Fi</span></div>
+          <div class="feat-icon"><img src="images/features/multi-lang.jpg?v=2" alt=""><span>მრავალენოვანი</span></div>
+          <div class="feat-icon"><img src="images/features/phone-compat.jpg?v=2" alt=""><span>ყველა ტელეფონი</span></div>
+          <div class="feat-icon"><img src="images/features/bank-link.jpg?v=2" alt=""><span>ბანკთან კავშირი</span></div>
+          <div class="feat-icon"><img src="images/features/transfer.jpg?v=2" alt=""><span>გადარიცხვა</span></div>
+          <div class="feat-icon"><img src="images/features/security-24h.jpg?v=2" alt=""><span>უსაფრთხოება 24/7</span></div>
+          <div class="feat-icon"><img src="images/features/battery.jpg?v=2" alt=""><span>7-დღიანი ბატარეა</span></div>
+          <div class="feat-icon"><img src="images/features/gps.jpg?v=2" alt=""><span>GPS</span></div>
+          <div class="feat-icon"><img src="images/features/waterproof.jpg?v=2" alt=""><span>წყალგამძლე</span></div>
+          <div class="feat-icon"><img src="images/features/notifications.jpg?v=2" alt=""><span>შეტყობინებები</span></div>
+          <div class="feat-icon"><img src="images/features/sports.jpg?v=2" alt=""><span>სპორტული რეჟიმები</span></div>
+          <div class="feat-icon"><img src="images/features/reminders.jpg?v=2" alt=""><span>შემახსენებლები</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="more-btn-wrap">
+      <button class="more-btn" id="moreBtn" onclick="toggleFeats()">
+        გაიგეთ მეტი <span class="arrow">&#9660;</span>
+      </button>
+    </div>
+
+    <div class="feat-details" id="featDetails">
+      <div class="feat">
+        <div class="ic"><img src="images/features/nfc.jpg?v=2" alt="უკონტაქტო გადახდა"></div>
+        <div class="feat-text"><div class="ft">უკონტაქტო გადახდა</div><div class="fd">გადაიხადეთ მარტივი შეხებით საათიდან</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/password.jpg?v=2" alt="საბანკო ტოკენი"></div>
+        <div class="feat-text"><div class="ft">საბანკო ტოკენი</div><div class="fd">ბანკის უსაფრთხოების კოდი პირდაპირ თქვენს მაჯაზე</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/sms.jpg?v=2" alt="SMS"></div>
+        <div class="feat-text"><div class="ft">SMS-ის მხარდაჭერა</div><div class="fd">მიიღეთ და წაიკითხეთ შეტყობინებები მყისიერად</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/wifi.jpg?v=2" alt="Wi-Fi"></div>
+        <div class="feat-text"><div class="ft">Wi-Fi-ის მხარდაჭერა</div><div class="fd">სწრაფი უსადენო დაკავშირება ქსელებთან</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/multi-lang.jpg?v=2" alt="მრავალენოვანი"></div>
+        <div class="feat-text"><div class="ft">მრავალენოვანი</div><div class="fd">მრავალენოვანი ინტერფეისი ყველასთვის</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/phone-compat.jpg?v=2" alt="ყველა ტელეფონთან თავსებადი"></div>
+        <div class="feat-text"><div class="ft">ყველა ტელეფონთან თავსებადი</div><div class="fd">თავსებადია Android-სა და iPhone-თან</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/bank-link.jpg?v=2" alt="საბანკო ანგარიშთან კავშირი"></div>
+        <div class="feat-text"><div class="ft">საბანკო ანგარიშთან კავშირი</div><div class="fd">დააკავშირეთ ანგარიში და აკონტროლეთ ბალანსი</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/transfer.jpg?v=2" alt="ფულადი გადარიცხვები"></div>
+        <div class="feat-text"><div class="ft">ფულადი გადარიცხვები</div><div class="fd">გაგზავნეთ და მიიღეთ ფული საათიდან</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/security-24h.jpg?v=2" alt="უსაფრთხოება 24/7"></div>
+        <div class="feat-text"><div class="ft">უსაფრთხოება 24/7</div><div class="fd">თქვენი საბანკო ანგარიშის მუდმივი დაცვა</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/battery.jpg?v=2" alt="ბატარეა 7 დღით"></div>
+        <div class="feat-text"><div class="ft">ბატარეა 7 დღით</div><div class="fd">ძლიერი ბატარეა მთელი კვირისთვის</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/gps.jpg?v=2" alt="GPS ნავიგაცია"></div>
+        <div class="feat-text"><div class="ft">GPS ნავიგაცია</div><div class="fd">აკონტროლეთ მარშრუტები და მდებარეობა GPS-ით</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/waterproof.jpg?v=2" alt="წყალგამძლე"></div>
+        <div class="feat-text"><div class="ft">წყალგამძლე</div><div class="fd">უძლებს ოფლს, წვიმას და მსუბუქ ცურვას</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/notifications.jpg?v=2" alt="შეტყობინებები"></div>
+        <div class="feat-text"><div class="ft">შეტყობინებები</div><div class="fd">შეტყობინებები ზარებისა და მესიჯების შესახებ მაჯაზე</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/sports.jpg?v=2" alt="სპორტული რეჟიმები"></div>
+        <div class="feat-text"><div class="ft">სპორტული რეჟიმები</div><div class="fd">100-ზე მეტი სხვადასხვა ვარჯიშის რეჟიმი</div></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><img src="images/features/reminders.jpg?v=2" alt="შემახსენებლები"></div>
+        <div class="feat-text"><div class="ft">შემახსენებლები</div><div class="fd">ჭკვიანი შემახსენებლები და შეტყობინებები თქვენი განრიგისთვის</div></div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  function toggleFeats(){
+    var d=document.getElementById("featDetails");
+    var b=document.getElementById("moreBtn");
+    if(d.classList.contains("show")){
+      d.classList.remove("show");
+      b.classList.remove("open");
+    }else{
+      d.classList.add("show");
+      b.classList.add("open");
+    }
+  }
+
+  </script>
+
+
+  <!-- ===== Footer ===== -->
+  <footer class="pb-footer">
+    <div class="ft-content">
+      <!-- Phones -->
+      <div class="ft-phones">
+        <div class="ft-phone-row">
+          <img src="https://cdn-icons-png.flaticon.com/128/724/724664.png" alt="ცხელი ხაზი">
+          <div class="call-info">
+            <p class="header">*2727</p>
+            <p class="description">ცხელი ხაზი — ზარი უფასოა საქართველოდან</p>
+          </div>
+        </div>
+        <div class="ft-phone-row">
+          <img src="https://cdn-icons-png.flaticon.com/128/9850/9850809.png" alt="საერთაშორისო">
+          <div class="call-info">
+            <p class="header">+995 32 2 444 444</p>
+            <p class="description">ზარები საერთაშორისო ხაზებიდან</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support cards -->
+      <div class="ft-support-cards">
+        <div class="ft-support-card">
+          <img src="https://cdn-icons-png.flaticon.com/128/9068/9068699.png" alt="შეკითხვები">
+          <div class="card-info">
+            <p>კითხვები და წინადადებები</p>
+            <a href="mailto:customerservice@bog.ge">მოგვწერეთ</a>
+          </div>
+        </div>
+        <div class="ft-support-card">
+          <img src="https://cdn-icons-png.flaticon.com/128/3135/3135755.png" alt="საჯარო ხელშეკრულებები">
+          <div class="card-info">
+            <p>საჯარო ხელშეკრულებები</p>
+            <a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">გაიგეთ მეტი</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank links -->
+      <div class="ft-col">
+        <p class="sub-header">ბანკი</p>
+        <ul>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">ჩვენ შესახებ</a></li>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">ფილიალები</a></li>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">ბანკომატები</a></li>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">კარიერა</a></li>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">პრესცენტრი</a></li>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">წესები და პირობები</a></li>
+        </ul>
+      </div>
+
+      <!-- Services -->
+      <div class="ft-col">
+        <p class="sub-header">სერვისები</p>
+        <ul>
+          <li><a href="https://ibank.bog.ge/" target="_blank" rel="noopener">iBank</a></li>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">სესხები</a></li>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">დეპოზიტები</a></li>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">ბარათები</a></li>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">გადარიცხვები</a></li>
+          <li><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">ვალუტის კურსი</a></li>
+        </ul>
+      </div>
+
+      <!-- App badges -->
+      <div class="ft-sites">
+        <p class="sub-header">ჩამოტვირთე აპი</p>
+        <div class="bog-apps">
+          <a href="https://play.google.com/store/apps/details?id=ge.bog.mobilebank" target="_blank" rel="noopener"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play"></a>
+          <a href="https://apps.apple.com/ge/app/bank-of-georgia/id1115367026" target="_blank" rel="noopener"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store"></a>
+          <a href="https://appgallery.huawei.com/" target="_blank" rel="noopener"><img src="https://upload.wikimedia.org/wikipedia/commons/9/9e/Huawei_AppGallery_Badge_Black_EN.svg" alt="AppGallery"></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer bottom bar -->
+    <div class="ft-note">
+      <div class="ft-note-inner">
+        <div class="ft-social">
+          <a href="https://www.facebook.com/BankofGeorgia" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path d="M24 12.073C24 5.40365 18.629 0 12 0C5.37097 0 0 5.40365 0 12.073C0 18.0988 4.38823 23.0936 10.125 24V15.563H7.07662V12.073H10.125V9.41306C10.125 6.38751 11.9153 4.71627 14.6574 4.71627C15.9707 4.71627 17.3439 4.95189 17.3439 4.95189V7.92146H15.8303C14.34 7.92146 13.875 8.85225 13.875 9.80689V12.073H17.2031L16.6708 15.563H13.875V24C19.6117 23.0936 24 18.0988 24 12.073Z" fill="black" fill-opacity="0.5"/></svg>
+          </a>
+          <a href="https://www.instagram.com/bankofgeorgia/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07c-1.28.06-2.15.26-2.91.56-.79.3-1.46.72-2.13 1.39S.74 3.35.44 4.14C.14 4.9-.06 5.77 0 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.28.26 2.15.56 2.91.3.79.72 1.46 1.39 2.13s1.34 1.09 2.13 1.39c.76.3 1.63.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.28-.06 2.15-.26 2.91-.56.79-.3 1.46-.72 2.13-1.39s1.09-1.34 1.39-2.13c.3-.76.5-1.63.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.28-.26-2.15-.56-2.91-.3-.79-.72-1.46-1.39-2.13S20.65.74 19.86.44C19.1.14 18.23-.06 16.95 0 15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 005.84 12 6.16 6.16 0 0012 18.16 6.16 6.16 0 0018.16 12 6.16 6.16 0 0012 5.84zm0 10.16A4 4 0 018 12a4 4 0 014-4 4 4 0 014 4 4 4 0 01-4 4zm6.4-11.84a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z" fill="black" fill-opacity="0.5"/></svg>
+          </a>
+          <a href="https://www.youtube.com/@bankofgeorgia" target="_blank" rel="noopener" aria-label="YouTube">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path d="M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4A3 3 0 00.5 6.5C.1 8.4.1 12 .1 12s0 3.6.4 5.5a3 3 0 002.1 2.1C4.5 20 12 20 12 20s7.5 0 9.4-.4a3 3 0 002.1-2.1c.4-1.9.4-5.5.4-5.5s0-3.6-.4-5.5zM9.6 15.6V8.4L15.8 12l-6.2 3.6z" fill="black" fill-opacity="0.5"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/company/bank-of-georgia/" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M21.3 1H1.7C.8 1 0 1.74 0 2.66v19.68C0 23.26.52 24 1.46 24H21.06c.94 0 1.94-.74 1.94-1.66V2.66C23 1.74 22.27 1 21.3 1zM8.76 9.76h3.1v1.58h.04c.47-.85 1.87-1.72 3.59-1.72 3.3 0 4.22 1.76 4.22 5.01V20.7H16.4v-5.48c0-1.46-.58-2.74-1.94-2.74-1.65 0-2.44 1.12-2.44 2.95V20.7H8.76V9.76zm-5.48 10.96h3.3V9.76h-3.3V20.7zM7 5.93a2.05 2.05 0 11-4.11 0 2.05 2.05 0 014.11 0z" fill="black" fill-opacity="0.5"/></svg>
+          </a>
+        </div>
+        <div class="ft-lang"><a href="/en/index.html">EN</a></div>
+        <div class="ft-privacy"><a href="https://bankofgeorgia.ge/" target="_blank" rel="noopener">პერსონალური მონაცემების დაცვა</a></div>
+        <div class="ft-licence">&copy; <span id="bogYear"></span> სსიპ „საქართველოს ბანკი". ეროვნული ბანკის ლიცენზია №36. მის.: გაგარინის ქ. 29ა, თბილისი 0160</div>
+        <script>document.getElementById("bogYear").textContent=new Date().getFullYear();</script>
+      </div>
+    </div>
+  </footer>
+
+
+<script>
+  const watches = [
+    {img:"images/1.jpg",  name:"პიტნის"},
+    {img:"images/2.jpg",  name:"მდოგვის ფერი"},
+    {img:"images/3.jpg",  name:"წითელი"},
+    {img:"images/4.jpg",  name:"იისფერი"},
+    {img:"images/5.jpg",  name:"ნარინჯისფერი"},
+    {img:"images/6.jpg",  name:"ღია ყავისფერი"},
+    {img:"images/7.jpg",  name:"მუქი ნარინჯისფერი"},
+    {img:"images/8.jpg",  name:"ცისფერი"},
+    {img:"images/9.jpg",  name:"სამხედრო მწვანე"},
+    {img:"images/10.jpg", name:"ოქროსფერი შავთან"},
+    {img:"images/11.jpg", name:"წითელი შავთან"},
+    {img:"images/12.jpg", name:"შავი მწვანესთან"},
+    {img:"images/13.jpg", name:"ბორდოსფერი"},
+    {img:"images/14.jpg", name:"გამჭვირვალე"},
+    {img:"images/15.jpg", name:"კარამელის ფერი"},
+    {img:"images/16.jpg", name:"ვარდისფერი ოქრო"},
+    {img:"images/17.jpg", name:"სამეფო ლურჯი"},
+    {img:"images/18.jpg", name:"მუქი ლურჯი"},
+    {img:"images/19.jpg", name:"შოკოლადისფერი"},
+  ];
+
+  const heroImg = document.getElementById("heroImg");
+  const strip   = document.getElementById("strip");
+
+  function select(i){
+    const w = watches[i];
+    heroImg.src = w.img;
+    heroImg.style.animation = "none"; void heroImg.offsetWidth; heroImg.style.animation = "";
+    document.querySelectorAll(".item").forEach(el=>el.classList.remove("active"));
+    const el = strip.children[i];
+    el.classList.add("active");
+    el.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"});
+  }
+
+  strip.innerHTML = watches.map((w,i)=>
+    `<div class="item${i===0?' active':''}" data-i="${i}">
+       <div class="pic"><img src="${w.img}" alt="${w.name}"></div>
+       <span class="label">${w.name}</span>
+     </div>`).join("");
+
+  strip.addEventListener("click", e=>{
+    const item = e.target.closest(".item");
+    if(item) select(+item.dataset.i);
+  });
+
+  const pick = parseInt(new URLSearchParams(location.search).get("w"));
+  if(!isNaN(pick) && pick>=0 && pick<watches.length) select(pick);
+
+</script>
+<script src="tracker.js"></script>
+<script src="/presence.js"></script>
+</body>
+</html>

